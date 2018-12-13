@@ -1,0 +1,942 @@
+<!DOCTYPE html>
+<html>
+<head>
+<meta charset="UTF-8">
+<title>QCBEDMS-PF configuration generator</title>
+</head>
+<script>
+	var coord_opt = "side_angle";
+	var nregions = 1, nslice = 1, npr = 1, ntype = 1;
+	var kv = 200, kvopt = 0, indz = [ 0, 0, 1 ];
+	var meshx = 16, meshy = 16;
+	var absorb = true;
+	var depth = [];
+	var rnsl = [ 1 ], nball = [ 1 ], rtype = [ 1 ], slpr = [ 1 ];
+	var itype = [ 1 ], xpsx = [], xpsy = [], maskxpsx = [], maskxpsy = [], occ = [];
+	var expint = "in.dat", bmname = "out.dat", mbout = 1;
+	var input_opt = "0";
+	var nrf = [ 1 ];
+	var nhyb = 1, msp_ratio = [ 1 ], msp_meth = [ "fftw" ], msp_dev = [ 1 ], msp_splt = [ 0 ];
+</script>
+
+<script type="text/javascript">
+	function DelParent(e, m) {
+		e.parentNode.remove();
+		m();
+	}
+
+	function ReplaceRefineSpan(n, m) {
+		var e = document.querySelector('[class=' + n + ']');
+		e.innerHTML = document.getElementById('refine_tpl').innerHTML;
+		e.querySelector('[type="checkbox"]').name = m;
+	}
+
+	function VarToForm_misc() {
+		ReplaceRefineSpan("kvopt", "kvopt");
+		ReplaceRefineSpan("maskdilation", "maskdilation");
+
+	}
+
+	function VarToForm_pr() {
+		document.getElementById('npr_disp').innerText = npr;
+		var list = document.getElementById('pr_list');
+		while (list.firstChild)
+			list.removeChild(list.firstChild);
+
+		for (var i = 0; i < npr; i++) {
+			var div = document.getElementById('pr_tpl').cloneNode(true);
+			div.removeAttribute("style");
+			div.removeAttribute("id");
+			div.querySelector('b').innerText = i + 1;
+			list.appendChild(div);
+		}
+	}
+
+	function Add_pr() {
+		FormToVar();
+		npr++;
+		VarToForm_pr()
+	}
+
+	function Del_pr() {
+		FormToVar();
+		npr--;
+		VarToForm_pr()
+	}
+
+	function VarToForm_atom_type(ntype1) {
+		ntype = ntype1;
+		document.getElementById('ntype_disp').innerText = ntype;
+		var list = document.getElementById('atom_type_list');
+		while (list.firstChild)
+			list.removeChild(list.firstChild);
+
+		for (var i = 0; i < ntype; i++) {
+			var div = document.getElementById('atom_type_tpl').cloneNode(true);
+			div.removeAttribute("style");
+			div.removeAttribute("id");
+			div.querySelector('b').innerText = i + 1;
+			list.appendChild(div);
+		}
+
+		if (absorb)
+			document.getElementById('absorb_opt').checked = true;
+		else
+			document.getElementById('absorb_opt').checked = false;
+
+		absorb_opt_changed();
+	}
+
+	function absorb_opt_changed() {
+		absorb = document.getElementById('absorb_opt').checked
+		children = document.getElementsByClassName("absorption");
+
+		for (var i = 0; i < children.length; i++) {
+			if (absorb)
+				children[i].style.display = "";
+			else
+				children[i].style.display = "none";
+		}
+	}
+
+	function VarToForm_region() {
+		document.querySelector('[name="nregions"]').value = nregions;
+		var list = document.getElementById('region_list');
+		while (list.firstChild)
+			list.removeChild(list.firstChild);
+
+		var is = 0;
+
+		for (var i = 0; i < nregions; i++) {
+			var regi = document.getElementById('region_tpl').cloneNode(true);
+			regi.removeAttribute("style");
+			regi.removeAttribute("id");
+			regi.querySelector('[class="region_no"]').innerText = i + 1;
+
+			if (typeof rnsl[i] === 'undefined')
+				rnsl[i] = 1;
+			regi.querySelector('[name="rnsl[]"]').value = rnsl[i];
+			var pg_list = regi.querySelector('[class="pg_list"]');
+
+			for (var j = 0; j < rnsl[i]; j++) {
+				var pgj = document.getElementById('pg_tpl').cloneNode(true);
+				pgj.style.display = "";
+				pgj.removeAttribute("id");
+				pgj.querySelector('[class="pg_no"]').innerText = j + 1;
+
+				if (typeof nball[is] === 'undefined')
+					nball[is] = 1;
+				pgj.querySelector('[name="nball[]"]').value = nball[is];
+				var ball_list = pgj.querySelector('[class="ball_list"]');
+
+				for (var k = 0; k < nball[is]; k++) {
+					var iball = document.getElementById('ball_tpl').cloneNode(
+							true);
+					iball.style.display = "";
+					iball.removeAttribute("id");
+					iball.querySelector('[class="ball_no"]').innerText = k + 1;
+
+					ball_list.appendChild(iball);
+				}
+
+				is++;
+
+				pg_list.appendChild(pgj);
+			}
+
+			if (coord_opt == "side_angle")
+				regi.querySelector('[class="3_points"]').style.display = "none";
+			else
+				regi.querySelector('[class="3_points"]').style.display = "";
+
+			if (coord_opt == "4_points")
+				regi.querySelector('[class="4_points"]').style.display = "";
+			else
+				regi.querySelector('[class="4_points"]').style.display = "none";
+
+			if (typeof nrf[i] === 'undefined')
+				nrf[i] = 0;
+			regi.querySelector('[name="nrf[]"]').value = nrf[i];
+			for (var j = 0; j < nrf[i]; j++) {
+				var isf = document.getElementById('sf_tpl').cloneNode(true);
+				isf.style.display = "";
+				isf.removeAttribute("id");
+				isf.querySelector('[class="sf_no"]').innerText = j + 1;
+
+				regi.querySelector('[class="sf_list"]').appendChild(isf);
+			}
+
+			list.appendChild(regi);
+		}
+	}
+
+	function vacancy_option_changed(v) {
+		var vo = v.value;
+		var vc = v.parentNode.parentNode.querySelector(".vacancy_constant");
+		var ve = v.parentNode.parentNode.querySelector(".vacancy_equation");
+		if (vo > 0) {
+			vc.style.display = "none";
+			ve.style.display = "";
+		} else {
+			vc.style.display = "";
+			ve.style.display = "none";
+		}
+	}
+
+	function VarToForm_pattern() {
+		var inpf = document.getElementById("input_file");
+		var inpd = document.getElementById("input_dim");
+
+		if (input_opt === "0") {
+			inpf.style.display = "";
+			inpd.style.display = "none";
+		} else {
+			inpf.style.display = "none";
+			inpd.style.display = "";
+		}
+
+		document.querySelector('[name="mbout"]').value = mbout;
+		var list = document.getElementById('bout_list');
+		while (list.firstChild)
+			list.removeChild(list.firstChild);
+
+		for (var i = 0; i < mbout; i++) {
+			var div = document.getElementById('bout_tpl').cloneNode(true);
+			div.removeAttribute("style");
+			div.removeAttribute("id");
+			div.querySelector('[class="beam_no"]').innerText = i + 1;
+			list.appendChild(div);
+		}
+
+		if (coord_opt == "side_angle")
+			document.getElementById("side_angle").style.display = "";
+		else
+			document.getElementById("side_angle").style.display = "none";
+	}
+
+	function VarToForm_refinement() {
+		document.querySelector('[name="nhyb"]').value = nhyb;
+		var list = document.getElementById('fft_list');
+		while (list.firstChild)
+			list.removeChild(list.firstChild);
+
+		for (var i = 0; i < nhyb; i++) {
+			var div = document.getElementById('fft_tpl').cloneNode(true);
+			div.removeAttribute("style");
+			div.removeAttribute("id");
+			div.querySelector('[class="fft_no"]').innerText = i + 1;
+
+			if (typeof msp_ratio[i] === 'undefined')
+				msp_ratio[i] = 1;
+			div.querySelector('[name="msp_ratio[]"]').value = msp_ratio[i];
+
+			if (typeof msp_meth[i] === 'undefined')
+				msp_meth[i] = "fftw";
+			div.querySelector('[name="msp_meth[]"]').value = msp_meth[i];
+
+			if (typeof msp_dev[i] === 'undefined') {
+				if (msp_meth[i] == "fftsg" || msp_meth[i] == "fftw")
+					msp_dev[i] = 1;
+				else
+					msp_dev[i] = 0;
+			}
+			div.querySelector('[name="msp_dev[]"]').value = msp_dev[i];
+
+			if (typeof msp_splt[i] === 'undefined')
+				msp_splt[i] = 0;
+			div.querySelector('[name="msp_splt[]"]').value = msp_splt[i];
+
+			if (msp_meth[i] != "fftsg")
+				div.querySelector('[name="msp_dev[]"]').style.display = "";
+
+			if (msp_meth[i] == "fftw")
+				div.querySelector('[class="fftw"]').style.display = "";
+
+			if (msp_meth[i] == "clfft")
+				div.querySelector('[class="opencl"]').style.display = "";
+
+			if (msp_meth[i] == "cufft")
+				div.querySelector('[class="cuda"]').style.display = "";
+
+			if (msp_meth[i] == "clfft" || msp_meth[i] == "cufft")
+				div.querySelector('[class="gpu_opt"]').style.display = "";
+
+			list.appendChild(div);
+		}
+	}
+
+	function Change_input() {
+		FormToVar();
+		VarToForm();
+	}
+
+	function Change_refine(e) {
+		var c = e.checked;
+		var p = e.parentNode, un = p.querySelector('span');
+		if (c)
+			un.style.display = "";
+		else
+			un.style.display = "none";
+	}
+
+	function VarToForm() {
+		VarToForm_misc();
+		VarToForm_pr();
+		VarToForm_atom_type(ntype);
+		VarToForm_region();
+		VarToForm_pattern();
+		VarToForm_refinement();
+	}
+
+	function FormToVar() {
+		var f = new FormData(document.getElementById("form"));
+
+		coord_opt = f.get("coord_opt");
+
+		nregions = f.get("nregions");
+		depth = f.getAll("depth[]");
+		tmask = f.getAll("tmask[]");
+		concflag = f.getAll("concflag[]");
+		constvacconc = f.getAll("constvacconc[]");
+		maskconstvacconc = f.getAll("maskconstvacconc[]");
+		va = f.getAll("va[]");
+		maskva = f.getAll("maskva[]");
+		vb = f.getAll("vb[]");
+		maskvb = f.getAll("maskvb[]");
+		fstype = f.getAll("fstype[]");
+		binda = f.getAll("binda[]");
+		bindb = f.getAll("bindb[]");
+		bindc = f.getAll("bindc[]");
+
+		rnsl = f.getAll("rnsl[]");
+		nball = f.getAll("nball[]");
+		rtype = f.getAll("rtype[]");
+		slpr = f.getAll("slpr[]");
+		itype = f.getAll("itype[]");
+		xpsx = f.getAll("xpsx[]");
+		xpsy = f.getAll("xpsy[]");
+		maskxpsx = f.getAll("maskxpsx[]");
+		maskxpsy = f.getAll("maskxpsy[]");
+		occ = f.getAll("occ[]");
+		nrf = f.getAll("nrf[]");
+
+		input_opt = f.get("input_opt");
+		mbout = f.get("mbout");
+
+		nhyb = f.get("nhyb");
+		msp_ratio = f.getAll("msp_ratio[]");
+		msp_meth = f.getAll("msp_meth[]");
+		msp_dev = f.getAll("msp_dev[]");
+		msp_splt = f.getAll("msp_splt[]");
+
+		// 		 = f.getAll("[]");
+		// 		 = f.getAll("[]");
+	}
+
+	function submit() {
+		FormToVar();
+	};
+</script>
+
+
+<style type="text/css">
+.pname {
+	display: inline;
+	padding: 0px 0px 0px 0px;
+}
+
+div {
+	padding: 3px;
+}
+
+.pfield {
+	align: left;
+	padding: 3px;
+}
+
+legend {
+	font-weight: bold;
+}
+
+.fieldset1 {
+	border: 2px solid black;
+	margin: 5px;
+}
+
+.fieldset2 {
+	border: 2px solid grey;
+	padding: 5px 10px;
+	margin: 3px;
+}
+
+.fieldset3 {
+	border: 1px solid;
+	padding: .1rem .5rem;
+	margin: 3px;
+}
+
+.string {
+	width: 800px;
+	background-color: MistyRose;
+}
+
+.int {
+	width: 50px;
+	background-color: AliceBlue;
+}
+
+.dble {
+	width: 100px;
+	background-color: LightYellow;
+}
+
+.plusmins {
+	font-family: monospace;
+	text-align: center;
+	padding: 0rem 0.5rem;
+}
+
+.unce {
+	width: 5rem;
+	border: .3rem solid Lime;
+/* 	margin: 0rem .1rem; */
+}
+</style>
+
+<body>
+	<form id="form">
+		<fieldset class="fieldset1">
+			<legend>QCBEDMS version</legend>
+			<div>
+				<b>Program version - </b>
+				<select name="program_ver" onchange="Change_input()">
+					<option value="qcbedms">QCBEDMS</option>
+					<option value="qcbedms-pf">QCBEDMS-PF</option>
+				</select>
+				<b>, Coordinate format - </b>
+				<select name="coord_opt" onchange="Change_input()">
+					<option value="side_angle">Box by 1 point + side + angle (4 values)</option>
+					<option value="3_points">Box by 3 points (6 values)</option>
+					<option value="4_points">Box by 4 points (8 values)</option>
+				</select>
+			</div>
+		</fieldset>
+
+		<fieldset class="fieldset1">
+			<legend>Miscellaneous</legend>
+			Title:
+			<input name="title" value="Test on Cu <011>" type="text" class="string">
+			<div>
+				kV =
+				<input name="kv" value="200.0" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
+				,
+				<span class="kvopt"></span>
+			</div>
+			<div>
+				Zone Axis:
+				<input name="indz[]" value="0" type="text" pattern="-?[0-9]*" class="int">
+				<input name="indz[]" value="0" type="text" pattern="-?[0-9]*" class="int">
+				<input name="indz[]" value="1" type="text" pattern="-?[0-9]*" class="int">
+			</div>
+			<div>
+				Diffraction resolution X =
+				<input name="meshx" value="16" type="text" pattern="-?[0-9]*" class="int">
+				, Y =
+				<input name="meshy" value="16" type="text" pattern="-?[0-9]*" class="int">
+			</div>
+			<div class="pfield">
+				Dilation =
+				<input name="dilation" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
+				,
+				<span class="maskdilation"></span>
+			</div>
+		</fieldset>
+
+		<fieldset class="fieldset1">
+			<legend>Fresnel propagators</legend>
+			<div class="pfield">
+				Number of propagators =
+				<b id="npr_disp">0</b>
+				-
+				<input type="button" value="Add propagator" onclick="Add_pr()">
+				:
+			</div>
+			<div id="pr_list"></div>
+		</fieldset>
+
+		<fieldset class="fieldset1">
+			<legend>Atom types</legend>
+			<div class="pfield">
+				IAM file path:
+				<input name="iam_path" type="text" class="string">
+			</div>
+			<div class="pfield">
+				Phenomenological absorption -
+				<input name="absorb" id="absorb_opt" type="checkbox" onchange="absorb_opt_changed()">
+			</div>
+			<hr>
+			<div class="pfield">
+				Number of atom types =
+				<b id="ntype_disp">0</b>
+				-
+				<input type="button" value="Add atom type" onclick="VarToForm_atom_type(ntype + 1)">
+				:
+			</div>
+			<div id="atom_type_list"></div>
+			<hr>
+			<div class="pfield">
+				Maximum of
+				<i>s</i>
+				included =
+				<input name="dsap" value="5.0" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
+				&#8491;<sup>-1</sup> ; maximum of
+				<i>s</i>
+				listed in logs =
+				<input name="dsmax" value="1.0" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
+				&#8491;<sup>-1</sup>
+			</div>
+		</fieldset>
+
+		<fieldset class="fieldset1" id="fieldset_region">
+			<legend>Regions</legend>
+			<div class="pfield">
+				Number of regions =
+				<input type="text" name="nregions" pattern="-?[0-9]*" class="int"
+					onchange="Change_input()">
+				:
+			</div>
+			<div id="region_list"></div>
+		</fieldset>
+
+		<fieldset class="fieldset1">
+			<legend>Pattern I/O</legend>
+			<div>
+				Pattern-matching/One-off simulation:
+				<select name="input_opt" onchange="Change_input()">
+					<option value="0">Pattern-matching</option>
+					<option value="out">One-off simulation without input pattern</option>
+					<option value="sim">Generate synthetic input pattern file</option>
+				</select>
+			</div>
+			<div id="input_dim">
+				Beam disc width =
+				<input type="text" name="width" pattern="-?[0-9]*" class="int">
+				, height =
+				<input type="text" name="height" pattern="-?[0-9]*" class="int">
+				, differentiation length =
+				<input type="text" name="height" pattern="-?[0-9]*" class="int">
+			</div>
+			<div id="input_file">
+				Input pattern filename:
+				<input name="expint" type="text" class="string">
+			</div>
+			<div>
+				Output pattern filename:
+				<input name="bmname" type="text" class="string">
+			</div>
+			<hr>
+			<div>
+				Number of beams in pattern =
+				<input type="text" name="mbout" pattern="-?[0-9]*" class="int"
+					onchange="Change_input()">
+				:
+			</div>
+			<div id="bout_list"></div>
+			<hr>
+			<div>
+				Reference reflection vector 1:
+				<i>h</i>
+				-
+				<input type="text" name="ay" pattern="-?[0-9]*" class="int">
+				<i>k</i>
+				-
+				<input type="text" name="bee" pattern="-?[0-9]*" class="int">
+				<i>l</i>
+				-
+				<input type="text" name="nothing" pattern="-?[0-9]*" class="int">
+			</div>
+			<div>
+				Reference reflection vector 2:
+				<i>h</i>
+				-
+				<input type="text" name="cee" pattern="-?[0-9]*" class="int">
+				<i>k</i>
+				-
+				<input type="text" name="dee" pattern="-?[0-9]*" class="int">
+				<i>l</i>
+				-
+				<input type="text" name="naught" pattern="-?[0-9]*" class="int">
+			</div>
+			<fieldset class="fieldset2" id="side_angle">
+				<legend class="legend2">Pattern coordinates</legend>
+				<div>
+					Point X =
+					<input name="cbx" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
+					, refine:
+					<input type="checkbox" name="maskt[]">
+					, Y =
+					<input name="cby" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
+					, refine:
+					<input type="checkbox" name="maskt[]">
+				</div>
+				<div>
+					Side =
+					<input name="cbx" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
+					, refine:
+					<input type="checkbox" name="maskt[]">
+					, angle =
+					<input name="cbx" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
+					, refine:
+					<input type="checkbox" name="maskt[]">
+				</div>
+			</fieldset>
+			<div>
+				Intensity normalisation =
+				<input name="iref" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
+			</div>
+		</fieldset>
+		<fieldset class="fieldset1">
+			<legend class="legend">Refinement settings</legend>
+			<div>
+				Optimisation method -
+				<select name="method">
+					<option value="PANA">Annealing parabola</option>
+					<option value="ANNE">Annealing</option>
+					<option value="PARA">Parabola</option>
+					<option value="SIMP">Downhill simplex (Amoeba)</option>
+					<option value="PAAN">Parabola then Annealing</option>
+					<option value="ANPA">Annealing then Parabolic</option>
+					<option value="SIPA">Simplex then Parabola</option>
+					<option value="PASI">Parabola then Simplex</option>
+					<option value="SIAN">Simplex then Annealing</option>
+					<option value="ANSI">Annealing then Simplex</option>
+				</select>
+				, refine parameters in random order
+				<input type="checkbox" name="paraopt">
+			</div>
+			<div>
+				Overall refinement loops =
+				<input type="text" name="loops" pattern="-?[0-9]*" class="int">
+				, maximum cycles in a loop =
+				<input type="text" name="maxcycles" pattern="-?[0-9]*" class="int">
+				, maximum iterations in a loop =
+				<input type="text" name="maxiters" pattern="-?[0-9]*" class="int">
+			</div>
+			<div>
+				Target uncertainty =
+				<input name="minunce" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
+				, upper temperature =
+				<input name="maxtemp" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
+				, lower temperature =
+				<input name="mintemp" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
+				, cooling rate =
+				<input name="coolrate" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
+			</div>
+			<div>
+				Number of FFT methods =
+				<input type="text" name="nhyb" pattern="-?[0-9]*" class="int"
+					onchange="Change_input()">
+			</div>
+			<div id="fft_list"></div>
+		</fieldset>
+	</form>
+	<!-- ***************** End of form *************** -->
+
+
+
+	<!-- ***************** Start snippet templates *************** -->
+	<span id="refine_tpl">
+		refine -
+		<input type="checkbox" onchange="Change_refine(this)">
+		<span class="unce" style="display: none">
+			uncertainty =
+			<input type="text" pattern="-?[0-9]*.?[0-9]*" name="unce[]">
+		</span>
+	</span>
+
+	<div class="pfield" id="pr_tpl" style="display: none">
+		<input type="button" value="Del" onclick="DelParent(this, Del_pr)">
+		<b>Template</b>
+		. a =
+		<input type="text" pattern="-?[0-9]*.?[0-9]*" name="cell2d_a[]" class="dble">
+		&#8491;, b =
+		<input type="text" pattern="-?[0-9]*.?[0-9]*" name="cell2d_b[]" class="dble">
+		&#8491;, &gamma; =
+		<input type="text" pattern="-?[0-9]*.?[0-9]*" name="gammarreal[]" class="dble">
+		&deg;, &Delta;z =
+		<input type="text" pattern="-?[0-9]*.?[0-9]*" name="deltaz[]" class="dble">
+		&#8491;, X shift =
+		<input type="text" pattern="-?[0-9]*.?[0-9]*" name="xshift[]" class="dble">
+		&#8491;, Y shift =
+		<input type="text" pattern="-?[0-9]*.?[0-9]*" name="yshift[]" class="dble">
+		&#8491;;
+	</div>
+
+	<fieldset class="fieldset2" id="atom_type_tpl" style="display: none">
+		<legend>
+			Type
+			<b>Template</b>
+			<input type="button" value="Del"
+				onclick="DelParent(this, VarToForm_atom_type, ntype - 1)">
+		</legend>
+		<div>
+			Name =
+			<input type="text" name="label[]" maxlength="2" size="2">
+			, atomic number =
+			<input type="text" name="zt[]" pattern="-?[0-9]*" class="int">
+		</div>
+		<div>
+			Debye-Waller factor =
+			<input type="text" pattern="-?[0-9]*.?[0-9]*" name="dw[]" class="dble">
+			, refine:
+			<input type="checkbox" name="maskdw[]">
+		</div>
+		<div class="absorption">
+			Absorption: A =
+			<input type="text" pattern="-?[0-9]*.?[0-9]*" name="inela[]" class="dble">
+			, refine:
+			<input type="checkbox" name="maskinela[]">
+			; B =
+			<input type="text" pattern="-?[0-9]*.?[0-9]*" name="inelb[]" class="dble">
+			, refine:
+			<input type="checkbox" name="maskinelb[]">
+			, C =
+			<input type="text" pattern="-?[0-9]*.?[0-9]*" name="inelc[]" class="dble">
+			, refine:
+			<select name="maskinelc[]">
+				<option value=0>No</option>
+				<option value=1>Yes</option>
+				<option value=-1>= B</option>
+			</select>
+		</div>
+	</fieldset>
+
+	<fieldset class="fieldset2" id="region_tpl" style="display: none">
+		<legend>
+			Region
+			<b class="region_no">Template</b>
+		</legend>
+		<div>
+			Thickness =
+			<input type="text" pattern="-?[0-9]*.?[0-9]*" name="depth[]" class='dble'>
+			, refine:
+			<input type="checkbox" name="tmask[]">
+		</div>
+		<div style="padding: 0px; margin: 0px; clear: both; display: table">
+			<div style="float: left">
+				Vacancy concentration -
+				<select name="concflag[]" onchange="vacancy_option_changed(this)">
+					<option value=0>Constant</option>
+					<option value=1>Increases with thickness</option>
+					<option value=2>Decreases with thickness</option>
+				</select>
+				:
+			</div>
+			<div class="vacancy_constant" style="float: left">
+				C<sub>V</sub> =
+				<input type="text" pattern="-?[0-9]*.?[0-9]*" name="constvacconc[]" class="dble">
+				, refine:
+				<input type="checkbox" name="maskconstvacconc[]">
+			</div>
+			<div class="vacancy_equation" style="display: none; float: left">
+				C<sub>O</sub> =
+				<input type="text" pattern="-?[0-9]*.?[0-9]*" name="va[]" class="dble">
+				, refine:
+				<input type="checkbox" name="maskva[]">
+				; C<sub>V</sub> =
+				<input type="text" pattern="-?[0-9]*.?[0-9]*" name="vb[]" class="dble">
+				, refine:
+				<input type="checkbox" name="maskvb[]">
+			</div>
+		</div>
+		<div>
+			Free surface -
+			<select name="fstype[]">
+				<option value=0>No free surface</option>
+				<option value=1>Botton free surface</option>
+				<option value=2>Top free surface</option>
+			</select>
+			: A =
+			<input name="binda[]" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
+			, B =
+			<input name="binda[]" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
+			, C =
+			<input name="binda[]" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
+		</div>
+		<hr>
+		<div class="pfield">
+			Number of slices =
+			<input type="text" name="rnsl[]" pattern="-?[0-9]*" class="int"
+				onchange="Change_input()">
+			:
+		</div>
+		<div class="pg_list"></div>
+		<div class="3_points">
+			<hr>
+			<fieldset class="fieldset3">
+				<legend class="legend3">Pattern coordinates</legend>
+				<div>
+					Point 1 X =
+					<input name="a1[]" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
+					, refine -
+					<input type="checkbox" name="maskta1[]">
+					, 1 Y =
+					<input name="a2[]" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
+					, refine -
+					<input type="checkbox" name="maskta2[]">
+				</div>
+				<div>
+					Point 2 X =
+					<input name="b1[]" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
+					, refine -
+					<input type="checkbox" name="masktb1[]">
+					, 2 Y =
+					<input name="b2[]" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
+					, refine -
+					<input type="checkbox" name="masktb2[]">
+				</div>
+				<div>
+					Point 3 X =
+					<input name="c1[]" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
+					, refine -
+					<input type="checkbox" name="masktc1[]">
+					, 3 Y =
+					<input name="c2[]" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
+					, refine -
+					<input type="checkbox" name="masktc2[]">
+				</div>
+				<div class="4_points">
+					Point 4 X =
+					<input name="d1[]" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
+					, refine -
+					<input type="checkbox" name="masktd1[]">
+					, 4 Y =
+					<input name="d2[]" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
+					, refine -
+					<input type="checkbox" name="masktd2[]">
+				</div>
+			</fieldset>
+		</div>
+		<div>
+			<hr>
+			<div>
+				Symmetry -
+				<select name="symopt[]">
+					<option value="NONE">None</option>
+					<option value="INVE">Inversion/2-fold rotation</option>
+					<option value="RECT">Rectangle/2mm</option>
+					<option value="SQUA">Square/4mm</option>
+					<option value="HEXA">Hexagon/6mm or 3m</option>
+				</select>
+			</div>
+			<div>
+				Number of refining structure factors =
+				<input type="text" name="nrf[]" pattern="-?[0-9]*" class="int"
+					onchange="Change_input()">
+				:
+			</div>
+			<div class="sf_list"></div>
+		</div>
+	</fieldset>
+
+	<fieldset class="fieldset3" id="pg_tpl" style="display: none">
+		<legend>
+			Slice
+			<b class="pg_no">Template</b>
+		</legend>
+		Number of atoms in this slice =
+		<input type="text" name="nball[]" pattern="-?[0-9]*" class="int"
+			onchange="Change_input()">
+		; this slice is
+		<select name="rtype[]">
+			<option value="S">Solid</option>
+			<option value="G">Gas</option>
+		</select>
+		; propagator for this slice:
+		<input type="text" name="slpr[]" pattern="-?[0-9]*" class="int">
+		<div class="ball_list"></div>
+	</fieldset>
+
+	<div id="ball_tpl" style="display: none">
+		<hr>
+		<b>Atom</b>
+		<b class="ball_no">Template</b>
+		: Atom type -
+		<input type="text" name="itype[]" pattern="-?[0-9]*" class="int">
+		; Position X =
+		<input name="xpsx[]" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
+		- refine
+		<input type="checkbox" name="maskxpsx[]">
+		, Y =
+		<input name="xpsy[]" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
+		- refine
+		<input type="checkbox" name="maskxpsy[]">
+		; Occupancy =
+		<input name="occ[]" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
+	</div>
+
+	<div id="bout_tpl" style="display: none">
+		<b>Beam</b>
+		<b class="beam_no">Template</b>
+		:
+		<i>h</i>
+		-
+		<input type="text" name="hin[]" pattern="-?[0-9]*" class="int">
+		,
+		<i>k</i>
+		-
+		<input type="text" name="kin[]" pattern="-?[0-9]*" class="int">
+	</div>
+
+	<div id="sf_tpl" style="display: none">
+		<b>Strcuture Factor</b>
+		<b class="sf_no">Template</b>
+		:
+		<i>h</i>
+		-
+		<input type="text" name="h[]" pattern="-?[0-9]*" class="int">
+		,
+		<i>k</i>
+		-
+		<input type="text" name="k[]" pattern="-?[0-9]*" class="int">
+		, ratio to IAM =
+		<input name="sffac[]" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
+		- refine
+		<input type="checkbox" name="masksf[]">
+		, absorption =
+		<input name="absffac[]" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
+		- refine
+		<input type="checkbox" name="maskabsf[]">
+	</div>
+
+	<div id="fft_tpl" style="display: none">
+		<b>FFT Method</b>
+		<b class="fft_no">Template</b>
+		:
+		<select name="msp_meth[]" onchange="Change_input()">
+			<option value="fftsg">CPU FFTSG</option>
+			<option value="fftw">CPU FFTW</option>
+			<option value="clfft">GPU OpenCL</option>
+			<option value="cufft">GPU CUDA</option>
+		</select>
+		<span class="fftw" style="display: none">, amount of CPU cores =</span>
+		<span class="opencl" style="display: none">, OpenCL device No. =</span>
+		<span class="cuda" style="display: none">, CUDA device No. =</span>
+		<input type="text" name="msp_dev[]" pattern="-?[0-9]*" class="int" style="display: none">
+		<span class="gpu_opt" style="display: none">
+			, split jobs by ("0" for auto)
+			<input type="text" name="msp_splt[]" pattern="-?[0-9]*" class="int">
+		</span>
+		, weight of job assignment =
+		<input name="msp_ratio[]" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
+	</div>
+
+	<input type="submit" value="Output" onclick="submit()">
+</body>
+
+<script>
+	VarToForm();
+	FormToVar();
+	VarToForm();
+</script>
+</html>
