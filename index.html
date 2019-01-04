@@ -2,141 +2,1329 @@
 <html>
 <head>
 <meta charset="UTF-8">
-<title>QCBEDMS-PF configuration generator</title>
+<title>QCBEDMS-PF FOR007.DAT generator</title>
+<style type="text/css">
+div {
+	padding: .1rem 0;
+}
+
+hrml, body, .box, .ctn, .dw_var_ctn, input, select, #left_panel,
+	#right_panel, #atom_type_list, #region_list {
+	margin: 0;
+	padding: 0;
+}
+
+html, body {
+	height: 100%;
+}
+
+body {
+	min-height: 0;
+	display: flex;
+	flex-direction: column;
+}
+
+.header {
+	text-align: center;
+	flex: 0;
+	margin: 0;
+	padding: 0.2rem 1rem;
+}
+
+.footer {
+	text-align: center;
+	flex: 0;
+	margin: 0;
+	padding: 0.4rem;
+}
+
+.footerspan {
+	vertical-align: middle;
+	padding: 0.3rem .5rem;
+	margin: 0 2rem;
+	border-radius: .5rem;
+}
+
+.button {
+	vertical-align: middle;
+	border-radius: .5rem;
+	padding: 0.1rem .3rem;
+	margin: 0;
+	font-weight: bold;
+}
+
+.content {
+	margin: 0;
+	padding: 0.1rem;
+	border: 1px solid white;
+	flex: 1;
+	display: flex;
+	flex-direction: row;
+	min-height: 0;
+}
+
+#left_panel {
+	width: 50%;
+	overflow: auto;
+	border: 0.3rem solid PowderBlue;
+}
+
+#right_panel {
+	width: 50%;
+	overflow: auto;
+	border: 0.3rem solid Pink;
+	flex-direction: row;
+}
+
+#txt {
+	margin: 0;
+	padding: .5rem;
+	box-sizing: border-box;
+	height: 99%;
+	width: 100%;
+	white-space: pre;
+	resize: none;
+}
+
+.fmt {
+	margin: 0 3rem;
+}
+
+legend {
+	font-weight: bold;
+}
+
+.fieldset1 {
+	border: 5px solid gray;
+	margin: 1rem .5rem;
+	padding: .3rem .5rem;
+}
+
+.fieldset1 legend {
+	font-size: 14pt;
+}
+
+.fieldset2 {
+	border: 2px solid;
+	margin: 1rem 0;
+	padding: 0 .5rem;
+}
+
+.fieldset2 legend {
+	font-size: 12pt;
+}
+
+.fieldset3 {
+	border: 1px dotted;
+	margin: .5rem 0;
+	padding: 0 .5rem;
+}
+
+.filedset3 legend {
+	font-size: 11pt;
+}
+
+.pbox, .absorption {
+	display: flex;
+	flex-direction: row;
+	padding: 3px 0;
+}
+
+.plabel {
+	flex: 0;
+	white-space: nowrap;
+	vertical-align: top;
+	overflow: none;
+}
+
+.plist {
+	padding: 0 .5rem;
+	flex: 1;
+	overflow: auto;
+}
+
+.list, .sf_list {
+	margin-left: 1rem;
+}
+
+.n {
+	width: 2rem;
+	background-color: Gold;
+	/* 	color: white; */
+}
+
+.string {
+	flex: 1;
+	background-color: MistyRose;
+	margin: 0 .3rem;
+}
+
+.int {
+	width: 50px;
+	background-color: AliceBlue;
+}
+
+.dble {
+	width: 5rem;
+	background-color: LightYellow;
+}
+
+.fixed {
+	background-color: blue;
+	color: white;
+}
+
+.refine {
+	background-color: Lime;
+}
+
+.unce {
+	width: 4rem;
+}
+
+.atom_type {
+	color: DarkRed;
+}
+
+.propagator {
+	color: DarkGreen;
+}
+</style>
 </head>
-<script>
-	var coord_opt = "side_angle";
-	var nregions = 1, nslice = 1, npr = 1, ntype = 1;
-	var kv = 200, kvopt = 0, indz = [ 0, 0, 1 ];
-	var meshx = 16, meshy = 16;
-	var absorb = true;
-	var depth = [];
-	var rnsl = [ 1 ], nball = [ 1 ], rtype = [ 1 ], slpr = [ 1 ];
-	var itype = [ 1 ], xpsx = [], xpsy = [], maskxpsx = [], maskxpsy = [], occ = [];
-	var expint = "in.dat", bmname = "out.dat", mbout = 1;
-	var input_opt = "0";
-	var nrf = [ 1 ];
-	var nhyb = 1, msp_ratio = [ 1 ], msp_meth = [ "fftw" ], msp_dev = [ 1 ], msp_splt = [ 0 ];
+
+
+<body>
+	<div class="header" id="fmt">
+		<span class="fmt">
+			<b>Program format:</b>
+			<select name="prog" onchange="Refresh()">
+				<option value="qcbedms">QCBEDMS</option>
+				<option value="qcbedms-pf">QCBEDMS-PF</option>
+			</select>
+		</span>
+		<span class="fmt">
+			<b> Coordinates format:</b>
+			<select name="coord_fmt" onchange="Refresh()">
+				<option value="side_angle">Side + angle (4 values)</option>
+				<option value="3_points">3 points (6 values)</option>
+				<option value="4_points">4 points (8 values)</option>
+			</select>
+		</span>
+		<span class="fmt">
+			<b> Debye-Waller factor format:</b>
+			<select name="dw_fmt" onchange="Refresh()">
+				<option value="unique">Unique to atom type</option>
+				<option value="various">Various to different regions</option>
+			</select>
+		</span>
+	</div>
+
+	<div class="content">
+		<div id="left_panel">
+			<form id="form">
+				<fieldset class="fieldset1">
+					<legend>Miscellaneous</legend>
+					<div style="display: flex; flex-flow: row">
+						<b>Title:</b>
+						<input name="title" type="text" class="string">
+					</div>
+					<div>
+						<b>kV =</b>
+						<input name="kv" type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="dble">
+						<span class="refinekv"></span>
+					</div>
+					<div>
+						<b>Zone Axis:</b>
+						<input name="indz[]" type="text" pattern="-?[0-9]*" class="int">
+						<input name="indz[]" type="text" pattern="-?[0-9]*" class="int">
+						<input name="indz[]" type="text" pattern="-?[0-9]*" class="int">
+					</div>
+					<div>
+						<b>Diffraction resolution:</b> X =
+						<input name="meshx" type="text" pattern="-?[0-9]*" class="int">
+						, Y =
+						<input name="meshy" type="text" pattern="-?[0-9]*" class="int">
+					</div>
+					<div>
+						<b>Dilation =</b>
+						<input name="dilation" type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="dble">
+						<span class="refinedilation"></span>
+					</div>
+					<hr>
+					<div style="display: flex; flex-flow: row">
+						IAM file path:
+						<input name="iam_path" type="text" class="string">
+					</div>
+					<div>
+						Maximum of <i>s</i> allowed in calculation =
+						<input name="dsap" type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="dble">
+						&#8491;<sup>-1</sup>
+					</div>
+					<div>
+						Maximum of <i>s</i> listing in logs =
+						<input name="dsmax" type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="dble">
+						&#8491;<sup>-1</sup>
+					</div>
+				</fieldset>
+
+				<fieldset class="fieldset1">
+					<legend>
+						Fresnel Propagators:
+						<input name="npr" type="number" class="n" onchange="Refresh()">
+						templates
+						<span id="pr_label" style="display: none">(by total Slice Templates)</span>
+					</legend>
+					<div id="pr_list"></div>
+				</fieldset>
+
+				<fieldset class="fieldset1">
+					<legend>
+						Atom Types:
+						<input name="ntype" type="number" class="n" onchange="Refresh()">
+						types, apply Absorption Curve -
+						<select name="absorb_opt" onchange="Refresh()">
+							<option value="YES_ABSORPTION">Yes</option>
+							<option value="NO_ABSORPTION">No</option>
+						</select>
+					</legend>
+					<div id="atom_type_list"></div>
+				</fieldset>
+
+				<fieldset class="fieldset1" id="fieldset_region">
+					<legend>
+						Specimen Structure:
+						<input name="nregions" type="number" class="n" onchange="Refresh()">
+						Regions
+					</legend>
+					<div id="region_list"></div>
+				</fieldset>
+
+				<fieldset class="fieldset1">
+					<legend>Pattern I/O</legend>
+					<div>
+						Pattern-matching/One-off simulation:
+						<select name="in_opt" onchange="Refresh()">
+							<option value="0">Pattern-matching</option>
+							<option value="out">One-off simulation without input pattern</option>
+							<option value="sim">Generate synthetic input pattern file</option>
+						</select>
+					</div>
+					<div id="in_dim">
+						Beam disc width =
+						<input type="text" name="nump" pattern="-?[0-9]*" class="int">
+						, height =
+						<input type="text" name="numl" pattern="-?[0-9]*" class="int">
+						, differentiation length =
+						<input type="text" name="gradopt" pattern="-?[0-9]*" class="int">
+					</div>
+					<div id="in_file" style="display: flex; flex-flow: row">
+						Input pattern filename:
+						<input name="expint" type="text" class="string">
+					</div>
+					<div style="display: flex; flex-flow: row">
+						Output pattern filename:
+						<input name="bmname" type="text" class="string">
+					</div>
+					<hr>
+					<div>
+						<b>Reflection discs:</b>
+						<input name="mbout" type="number" class="n" onchange="Refresh()">
+						discs in pattern
+					</div>
+					<div id="bout_list" class="list"></div>
+					<hr>
+					<div>
+						<b>Reference reflection vectors:</b>
+					</div>
+					<div class="list">
+						Vector 1: <i>h</i> -
+						<input type="text" name="ay" pattern="-?[0-9]*" class="int">
+						<i>k</i> -
+						<input type="text" name="bee" pattern="-?[0-9]*" class="int">
+						<i>l</i> -
+						<input type="text" name="nothing" pattern="-?[0-9]*" class="int">
+						<br />
+						Vector 2: <i>h</i> -
+						<input type="text" name="cee" pattern="-?[0-9]*" class="int">
+						<i>k</i> -
+						<input type="text" name="dee" pattern="-?[0-9]*" class="int">
+						<i>l</i> -
+						<input type="text" name="naught" pattern="-?[0-9]*" class="int">
+					</div>
+					<div id="side_angle">
+						<hr>
+						<div>
+							<b>Pattern coordinates</b>
+						</div>
+						<div>
+							Point 1: X =
+							<input name="cbx" type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="dble">
+							<span class="refinetx"></span>
+							, Y =
+							<input name="cby" type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="dble">
+							<span class="refinety"></span>
+						</div>
+						<div>
+							Side =
+							<input name="bs" type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="dble">
+							<span class="refinets"></span>
+							, angle =
+							<input name="tbx" type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="dble">
+							<span class="refinett"></span>
+						</div>
+					</div>
+					<hr>
+					<div>
+						<b>Intensity normalisation:</b>
+						<select name="iref_opt" onchange="Refresh()">
+							<option value=-1>Scale to brightest pixel</option>
+							<option value=0>Scale to total intensities</option>
+							<option value=1>Scale by fixed factor</option>
+						</select>
+						=
+						<input name="iref" type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="dble">
+					</div>
+				</fieldset>
+
+				<fieldset class="fieldset1">
+					<legend class="legend">Refinement settings</legend>
+					<div>
+						<b>Minimisation:</b> algorithm -
+						<select name="method">
+							<option value="PANA">Annealing parabola</option>
+							<option value="ANNE">Annealing</option>
+							<option value="PARA">Parabola</option>
+							<option value="SIMP">Downhill simplex (Amoeba)</option>
+							<option value="PAAN">Parabola then Annealing</option>
+							<option value="ANPA">Annealing then Parabolic</option>
+							<option value="SIPA">Simplex then Parabola</option>
+							<option value="PASI">Parabola then Simplex</option>
+							<option value="SIAN">Simplex then Annealing</option>
+							<option value="ANSI">Annealing then Simplex</option>
+						</select>
+						, refine parameters -
+						<select name="paraopt">
+							<option value=1>in random order</option>
+							<option value=0>in sequence</option>
+						</select>
+					</div>
+					<div class="list">
+						<div>
+							Global refinement loops =
+							<input type="text" name="loops" pattern="-?[0-9]*" class="int">
+							, Iterations in loop =
+							<input type="text" name="maxiters" pattern="-?[0-9]*" class="int">
+							, Cycles in loop =
+							<input type="text" name="maxcycles" pattern="-?[0-9]*" class="int">
+						</div>
+						<div>
+							Target uncertainty =
+							<input name="minunce" type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="dble">
+						</div>
+						<div>
+							Annealing temperatures: high =
+							<input name="maxtemp" type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="dble">
+							, low =
+							<input name="mintemp" type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="dble">
+							, cooling rate =
+							<input name="coolrate" type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="dble">
+						</div>
+					</div>
+					<hr>
+					<div id="pll"></div>
+					<div id="pll_list"></div>
+				</fieldset>
+			</form>
+		</div>
+		<!-- ***************** End of form *************** -->
+
+
+		<div id="right_panel">
+			<textarea id="txt"></textarea>
+		</div>
+	</div>
+	<div class="footer">
+		<span class="footerspan">
+			<input type="button" class="button" style="background: PowderBlue" value="Form &#9658; Text"
+				onclick="FormToText()">
+		</span>
+		<span class="footerspan">
+			<input type="button" class="button" style="background: white" value="Refresh Form"
+				onclick="Refresh()">
+		</span>
+		<span class="footerspan" style="background: white; border: 1px solid gray">
+			<b>Panels divider:</b>
+			<input type="range" style="width: 20rem" class="button" min="0" max="100" value="50" id="divider"
+				oninput="Change_Divider()">
+		</span>
+		<span class="footerspan">
+			<input type="button" style="background: white" class="button" value="Load Template"
+				onclick="LoadF7Tpl()">
+			<select name="f7_tpl">
+				<!-- 				<option value="empty">Empty form</option> -->
+				<option value="cu_qcbedms-pf_side-angle_dw-var_tpl">Copper (QCBEDMS-PF)</option>
+				<option value="al_qcbedms_side-angle_dw-var_tpl">Aluminium (QCBEDMS)</option>
+				<option value="al_void_qcbedms_side-angle_dw-var_tpl">Aluminium void (QCBEDMS)</option>
+			</select>
+		</span>
+		<span class="footerspan">
+			<input type="button" class="button" style="background: Pink" value="Form &#9668; Text"
+				onclick="TextToForm()" style="">
+		</span>
+	</div>
+
+
+
+	<!-- ***************** Start snippet templates *************** -->
+	<div style="display: none">
+		<span id="refine_tpl">
+			-
+			<select onchange="ChangeRefine(this)" class="fixed">
+				<option>Fixed</option>
+				<option>Refine</option>
+			</select>
+			, &delta; =
+			<input type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="unce" disabled>
+		</span>
+
+		<div id="pr_tpl" class="pbox">
+			<div class="plabel">
+				<b class="propagator">Propagator #Template:</b>
+			</div>
+			<table class="plist" style="text-align: right">
+				<tr>
+					<td>a =</td>
+					<td>
+						<input type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" name="cell2d_a[]" class="dble">
+					</td>
+					<td>&#8491;,</td>
+					<td>&gamma; =</td>
+					<td>
+						<input type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" name="gammareal[]" class="dble">
+					</td>
+					<td>&deg;,</td>
+					<td>X shift =</td>
+					<td>
+						<input type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" name="xshift[]" class="dble">
+						&#8491;
+					</td>
+				</tr>
+				<tr>
+					<td>b =</td>
+					<td>
+						<input type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" name="cell2d_b[]" class="dble">
+					</td>
+					<td>&#8491;,</td>
+					<td>&Delta;z =</td>
+					<td>
+						<input type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" name="deltaz[]" class="dble">
+					</td>
+					<td>&#8491;,</td>
+					<td>Y shift =</td>
+					<td>
+						<input type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" name="yshift[]" class="dble">
+						&#8491;
+				</tr>
+			</table>
+		</div>
+
+		<fieldset class="fieldset2" id="atom_type_tpl">
+			<legend class="atom_type">
+				<b>Type Template:</b> label -
+				<input type="text" name="label[]" maxlength="2" size="2">
+				, atomic number -
+				<input type="text" name="zt[]" pattern="-?[0-9]*" class="int">
+			</legend>
+			<div class="dw_uni_ctn">
+				<b>Debye-Waller factor</b> =
+				<input type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" name="dw_uni[]" class="dble">
+				<span class="refinedw_uni[]"></span>
+			</div>
+			<div class="absorption">
+				<div class="plabel">
+					<b>Absorptions:</b>
+				</div>
+				<div class="plist">
+					<div>
+						A =
+						<input type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" name="inela[]" class="dble">
+						<span class="refineinela[]"></span>
+					</div>
+					<div>
+						B =
+						<input type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" name="inelb[]" class="dble">
+						<span class="refineinelb[]"></span>
+					</div>
+					<div>
+						C =
+						<input type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" name="inelc[]" class="dble">
+						-
+						<select name="maskinelc[]" onchange="Change_AbsorbC(this)">
+							<option value=-1>= B</option>
+							<option value=0>Fixed</option>
+							<option value=1>Refine</option>
+						</select>
+						, &delta; =
+						<input type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" name="unceinelc[]" disabled
+							class="unce">
+					</div>
+				</div>
+			</div>
+		</fieldset>
+
+		<fieldset class="fieldset2" id="region_tpl">
+			<legend>
+				<b>Region Template:</b>
+				<input name="rnsl[]" type="number" class="n" onchange="Refresh()">
+				Slice Templates. Thickness =
+				<input type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" name="depth[]" class='dble'>
+				&#8491; -
+				<select name="maskdepth[]" onchange="Change_maskdepth(this)">
+					<option value=0>Fixed</option>
+					<option value=1>Refine</option>
+					<option value=2>Fast refine</option>
+				</select>
+				, &delta; =
+				<input type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" name="uncedepth[]" disabled
+					class="unce">
+			</legend>
+			<div class="pg_list"></div>
+			<hr>
+			<div>
+				<b>Vacancy concentration - <select name="concflag[]" onchange="Refresh()">
+						<option value=0>Constant</option>
+						<option value=1>Lower at top</option>
+						<option value=2>Higher at top</option>
+					</select> :
+				</b>
+			</div>
+			<div style="margin-left: 1rem">
+				<span class="vacancy_constant" style="display: none">
+					<i>C<sub>V</sub></i> =
+					<input type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" name="constvacconc[]"
+						class="dble">
+					<span class="refineconstvacconc[]"></span>
+				</span>
+				<span class="vacancy_equation" style="display: none">
+					<i>C<sub>O</sub></i> =
+					<input type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" name="va[]" class="dble">
+					<span class="refineva[]"></span>
+					; <i>C<sub>V</sub></i> =
+					<input type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" name="vb[]" class="dble">
+					<span class="refinevb[]"></span>
+				</span>
+			</div>
+			<div>
+				<b>Free surface:</b>
+				<select name="fstype[]">
+					<option value=0>No free surface</option>
+					<option value=1>Botton free surface</option>
+					<option value=2>Top free surface</option>
+				</select>
+				, A =
+				<input name="binda[]" type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="dble">
+				, B =
+				<input name="bindb[]" type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="dble">
+				, C =
+				<input name="bindc[]" type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="dble">
+			</div>
+			<div class="dw_var_ctn">
+				<hr>
+				<b>Debye-Waller factor:</b>
+				<div class="dw_var_list" style="margin-left: 1rem"></div>
+			</div>
+			<div class="3_points">
+				<hr>
+				<div>
+					<b>Pattern Coordinates:</b>
+				</div>
+				<div>
+					Point 1: X =
+					<input name="ta1[]" type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="dble">
+					<span class="refineta1[]"></span>
+					, Y =
+					<input name="ta2[]" type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="dble">
+					<span class="refineta2[]"></span>
+				</div>
+				<div>
+					Point 2: X =
+					<input name="tb1[]" type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="dble">
+					<span class="refinetb1[]"></span>
+					, Y =
+					<input name="tb2[]" type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="dble">
+					<span class="refinetb2[]"></span>
+				</div>
+				<div>
+					Point 3: X =
+					<input name="tc1[]" type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="dble">
+					<span class="refinetc1[]"></span>
+					, Y =
+					<input name="tc2[]" type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="dble">
+					<span class="refinetc2[]"></span>
+				</div>
+				<div class="4_points">
+					Point 4: X =
+					<input name="td1[]" type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="dble">
+					<span class="refinetd1[]"></span>
+					, Y =
+					<input name="td2[]" type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="dble">
+					<span class="refinetd2[]"></span>
+				</div>
+			</div>
+			<hr>
+			<div>
+				<b>Structure factors:</b>
+				<input name="nrf[]" type="number" class="n" onchange="Refresh()">
+				modified structure factors, symmetry -
+				<select name="symopt[]" style="width: 5rem;">
+					<option value="NONE">None</option>
+					<option value="INVE">Inversion/2-fold rotation</option>
+					<option value="RECT">Rectangle/2mm</option>
+					<option value="SQUA">Square/4mm</option>
+					<option value="HEXA">Hexagon/6mm or 3m</option>
+				</select>
+				<div class="sf_list"></div>
+			</div>
+		</fieldset>
+
+		<fieldset class="fieldset3" id="pg_tpl">
+			<legend>
+				<b>Slice Template:</b>
+				<input name="nball[]" type="number" class="n" onchange="Refresh()">
+				atoms, state -
+				<select name="rtype[]">
+					<option value="S">Solid</option>
+					<option value="G">Gas</option>
+				</select>
+				, using
+				<span class="propagator">Propagator #</span>
+				<select name="slpr[]" class="propagator"></select>
+			</legend>
+			<div class="ball_list"></div>
+		</fieldset>
+
+		<div id="ball_tpl" class="pbox">
+			<div class="plabel">
+				<b>Atom Template:</b>
+			</div>
+			<div class="plist">
+				<div>
+					<span class="atom_type">Type #</span>
+					<select name="itype[]" class="atom_type"></select>
+					. Occupancy =
+					<input name="occ[]" type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="dble">
+				</div>
+				<div>
+					Coordinate X =
+					<input name="xpsx[]" type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="dble">
+					<span class="refinexpsx[]"></span>
+				</div>
+				<div>
+					Coordinate Y =
+					<input name="xpsy[]" type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="dble">
+					<span class="refinexpsy[]"></span>
+				</div>
+			</div>
+		</div>
+
+		<div id="dw_var_tpl">
+			<span class="atom_type">Type #Template. Label =</span>
+			<input name="dw_var[]" type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="dble">
+			<span class="refinedw_var[]"></span>
+		</div>
+
+		<div id="sf_tpl" class="pbox">
+			<div class="plabel">
+				<b class="sf_no">Template</b> H -
+				<input type="text" name="sfh[]" pattern="-?[0-9]*" class="int">
+				, K -
+				<input type="text" name="sfk[]" pattern="-?[0-9]*" class="int">
+				:
+			</div>
+			<div class="plist">
+				<i>rf<sub>Real</sub></i> =
+				<input name="sffac[]" type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="dble">
+				<span class="refinesffac[]"></span>
+				<br />
+				<i>rf<sub>Imag</sub></i> =
+				<input name="absfac[]" type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="dble">
+				<span class="refineabsfac[]"></span>
+			</div>
+		</div>
+
+		<div id="bout_tpl">
+			Disc
+			<span class="beam_no">Template</span>
+			: <i>h</i> -
+			<input type="text" name="hin[]" pattern="-?[0-9]*" class="int">
+			, <i>k</i> -
+			<input type="text" name="kin[]" pattern="-?[0-9]*" class="int">
+		</div>
+
+		<div id="pll_tpl">
+			<b>Template:</b>
+			<span class="msp_ratio_ctn">
+				Ratio =
+				<input name="msp_ratio[]" type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="dble">
+				,
+			</span>
+			<select name="msp_opt1" onchange="Refresh()">
+				<option value="fftsg">FFTSG</option>
+				<option value="fftw">FFTW</option>
+				<option value="clfft">OpenCL</option>
+				<option value="cufft">CUDA</option>
+				<option value="hybrid">Hybrid</option>
+				<option value="mpi">MPI</option>
+				<option value="test" disabled>Test</option>
+			</select>
+			<select name="mpi_mode[]" style="width: 3rem">
+				<option value="default">Default mode</option>
+				<option value="pernode">Per-node mode</option>
+			</select>
+			,
+			<span class="fftw" style="display: none">amount of CPU threads =</span>
+			<span class="opencl" style="display: none">OpenCL device No. =</span>
+			<span class="cuda" style="display: none">CUDA device No. =</span>
+			<input type="text" name="msp_opt2" pattern="-?[0-9]*" class="int">
+			<span class="nhyb" style="display: none">hybrids</span>
+			<span class="ntest" style="display: none">tests</span>
+			,
+			<span class="splt" style="display: none">split tilts by</span>
+			<span class="hyb_redi1" style="display: none">reassign tilts every</span>
+			<span class="rtest" style="display: none">repetition of each test =</span>
+			<input type="text" name="msp_opt3" pattern="-?[0-9]*" class="int">
+			<span class="hyb_redi2" style="display: none">calculations</span>
+			<select name="sgl_opt[]" style="display: none; width: 4rem">
+				<option value="double">Double-precision</option>
+				<option value="single">Single-precision</option>
+			</select>
+			<span class="timer">
+				, time each step -
+				<select name="msp_timer">
+					<option value="false">No</option>
+					<option value="true">Yes</option>
+				</select>
+			</span>
+		</div>
+
+		<textarea id="cu_qcbedms-pf_side-angle_dw-var_tpl" style="display: none">
+# Comments must have '#' as the 1st character without any space ahead
+#↓ 1. Title/Label
+test on Pure Cu [110]
+#↓ 2. Accelerating voltage and its switch; Nearest zone-axis
+   200.0000000  0       0   0   1
+#↓ 3. Number of crystal structure (Fresnel propagator) slices and Number of beams (in 'a' and 'b' directions)
+   1   32   32
+     3.6149600      2.5561630     90.0000000      1.2780810      0.0000000      0.0000000
+#↑    Slice structure: a, b, γ, thickness, a-sifht and b-shift. Repeat for each slice
+#↓ 4. Path to the atomic scattering factor file (absolute or relative path)
+DTE_all.txt
+#↓ 5. Number of atom types
+  1
+CU 29
+#↑    Atom names and their atomic numbers, 1 pair per line
+#↓ 6. Upper limit of scattering angle to include in calculations
+  6.00000
+  0.50000
+#↑    Upper limit of scattering angle to list in the log file
+#↓ 7. Number of layers (regions) in the whole specimen
+  1
+#↓ 8. Thicknesses of layers and refinement switch, all pairs in one line
+#    If only 1 layer, refinement mask='2' enables fast thickness refinement
+   1278.0000     2
+#↓ 9. Number of atom information (phase grating) slices in each layer, all layers in one line
+  2
+#↓ 10. Vacancy concentration for 1 layer
+  0
+ 0.0000000E+00  0
+#↑    Repeat the above vacancy concentration block for each layer
+#↓ 11. Dilation factor and its switch
+  0.00000000   0
+#↓ 12. Phenomenological absorption curves
+YES_ABSORPTION
+  0.000000000000000E+00  0    1.000000000000000E+00  0    1.000000000000000E+00  0
+#↑    Coefficients A, B and C for 1 atom type. Repeat for each atom type in separate lines
+#↓ 12. DW factor and its switch, all pairs in 1 line
+     0.5440000  0
+  0  0.000000000  0.000000000  1.000000000
+#↑   Free surface flags for 1 layer
+#↑   Repeat the above DW and Free surface lines for each layer
+#↓ Atomic structure slices for 1 layer
+#↓   Number of atoms in this slice, state of slice and corresponding crystal structure slice
+   1 S  1
+#↓     Atom type #, X and Y positions and switches and occupancy, repeat for each atom in this slice
+  1  0.0000000000000000  0    0.0000000000000000  0    1.0000000000000000
+#↑   Repeat the above slice information for each slice in this layer
+   1 S  1
+  1  0.5000000000000000  0    0.5000000000000000  0    1.0000000000000000
+#↑ Repeat the above crystal structure slices for each layer
+#↓ The text file to output the theoretical pattern
+out.dat
+#↓ Number of reflection beams in the experiment input pattern
+  6
+    0    0
+    4    0
+    1   -1
+    1    1
+    3   -1
+    3    1
+#↑ Reflection H and K in the experiment input pattern, 1 pair per line
+#↓ The text file to input the experiment input pattern
+out 50 50 1
+#↓ Reference reflection vectors
+   0  -2   0
+   2   0   0
+#↓ Pattern cooridinates and switches
+  0.000000000000000E+00 -1.000000000000000E+00
+ -5.000000000000000E-01  3.500000000000000E+01
+NN
+NN
+#↓ Intensity normalisation
+   10000
+#↓ Structure factor refinement options in 1 layer
+    3
+RECT
+  1  1    1.017305594000000        1.000000000000000
+  2  0    1.011222827000000        1.000000000000000
+  0  2    1.000000000000000        1.000000000000000
+NN
+NN
+NN
+#↑ Repeat the above structure factor refinement options for each layer
+#↓ Refinement optimisation methods
+SIMP   1
+#↓ Number of global loop
+     0
+#↓ Maximum function of evaluation per loop (for Annealing and Simplex related methods)
+   500
+#↓ Maximum number of local cycles per loop (for Parabolic related methods)
+     5
+#↓ Lower limit of uncertainties for Parabola/Simplex (end loop early when reached by all parameters)
+  0.0001000000000000
+#↓ Upper and lower temperatures and cooling rate (for Annealing related methods)
+  0.0100000000000000
+  0.0010000000000000
+  0.9000000000000000
+#↓ Uncertainties (relative)
+0.05
+#↓ Parallelisation options
+hybrid    2  1
+309.29  clfft     0  0
+17.435  fftw      8  0
+#
+</textarea>
+
+		<textarea id="al_qcbedms_side-angle_dw-var_tpl" style="display: none">
+test on Pure Aluminium [001] with homogeneous A and B slices
+   160.0000000    0    0   0   1
+   1  16  16
+     2.8630754      2.8630754     90.0000000      2.0245000      0.0000000      0.0000000
+  1
+AL
+  13
+  5.00000
+  0.50000
+  1
+  1000.0000000   1
+   1
+  0
+ 0.0000000E+00  0
+  0.50000000   0
+YES_ABSORPTION      
+     0.0000000   0      1.0000000   1      1.0000000   1
+     0.8600000
+  0
+  0  0.000000000  0.000000000  1.000000000
+   2 S
+  1   0.000000000000000    0   0.000000000000000    0   0.500000000000000
+  1   0.500000000000000    0   0.500000000000000    0   0.500000000000000
+out.dat   
+  9
+    0    0
+    1    1
+    1   -1
+   -1   -1
+   -1    1
+    2    0
+    0   -2
+   -2    0
+    0    2
+in.dat   
+   1   1   0
+   1  -1   0
+    0.0     -1.0
+   -0.5      0.0
+NN
+NN
+       -1.00000000
+    2
+SQUA
+    1     1      1.0000000      1.0000000
+    2     0      1.0000000      1.0000000
+YN
+YN
+PARA   1
+     0
+  1000
+     9
+        0.00100000
+        0.00100000
+       10.00000000
+        1.00000000
+        0.50000000
+     0.1000000      0.0100000      0.0100000      0.0010000      0.0010000
+     0.9     1.1
+     0.99    1.01
+     0.99    1.01
+     0.999   1.001
+     0.999   1.001
+</textarea>
+
+		<textarea id="al_void_qcbedms_side-angle_dw-var_tpl">
+test on Aluminium void [001]
+  160.0  0  0  0  1
+  5  16  16
+  2.8630754  2.8630754  90  2.0245000  0  0
+  2.8630754  2.8630754  90  2.0245000  0  0
+  2.8630754  2.8630754  90  2.0245000  0  0
+  2.8630754  2.8630754  90  2.0245000  0  0
+  2.8630754  2.8630754  90  2.0245000  0  0
+  1
+AL
+13
+  5.0
+  0.5
+  3
+  200 1  50 1  500 1
+  2  1  2
+  0
+  0.0  0
+  0
+  0  0
+  0
+  0.0  0
+  0.5  0
+  YES_ABSORPTION
+  0.0  0  1.0  1  1.0  -1
+  0.86
+  0
+  0  0  0  1
+  0.86
+  0
+  0  0  0  1
+  0.86
+  0
+  0  0  0  1
+  1  S
+  1  0.0  0  0.0  0  1
+  1  S
+  1  0.5  0  0.5  0  1
+  1  G
+  1  0  0  0  0  0
+  1  S
+  1  0.0  0  0.0  0  1.0
+  1  S
+  1  0.5  0  0.5  0  1.0
+out.dat   
+  9
+  0  0
+  1  1
+  1  -1
+  -1  -1
+  -1  1
+  2  0
+  0  -2
+  -2  0
+  0  2
+in.dat
+  1  1  0
+  1  -1  0
+  0.0  -1.0
+  -0.5  0.0
+NN
+NN
+  -1.0
+  2
+  SQUA
+  1  1  1.0  1.0
+  2  0  1.0  1.0
+YN
+YN
+  0
+  NONE
+  2
+  SQUA
+  1  1  1.0  1.0
+  2  0  1.0  1.0
+YN
+YN
+  PARA  1
+  5
+  1000
+  10
+  0.0001
+  1e-7
+  10.0
+  1.0
+  0.5
+  0.1  0.1  0.1  0.1  0.01  0.01  0.01  0.01
+0.9  1.1
+0.9  1.1
+0.9  1.1
+0.9  1.1
+0.99  1.01
+0.99  1.01
+0.99  1.01
+0.99  1.01
+</textarea>
+	</div>
+
+	<script type="text/javascript">
+	// Format versions
+	var prog = "qcbedms-pf", coord_fmt = "side_angle", dw_fmt = "various", f7_tpl = "cu_qcbedms-pf_tpl";
+
+	// Misc.
+	var title = "";
+	var kv, maskkv = false, uncekv, indz = [];
+	var dilation, maskdilation = false, uncedilation;
+	var meshx, meshy;
+	
+	// Fresnel propagators
+	var npr = 1;
+	var cell2d_a = [], cell2d_b = [], gammareal = [], deltaz = [], xshift = [], yshift = [];
+
+	// Atom types	
+	var iam_path, dsap, dsmax, ntype = 1, absorb_opt = "YES_ABSORPTION";
+	var label = [], zt = [];
+	var dw_uni = [], inela = [], inelb = [], inelc = [];
+	var maskdw_uni = [], maskinela = [], maskinelb = [], maskinelc = [];
+	var uncedw_uni = [], unceinela = [], unceinelb = [], unceinelc = [];
+	var dw_var = [], maskdw_var = [], uncedw_var = [];
+
+	// Regions
+	var nregions = 1, nslice = 1; 
+	var depth = [], concflag = [], fstype = [], binda = [], bindb = [], bindc = [];
+	var rnsl = [], nball = [], rtype = [], slpr = [];
+	var itype = [], occ = [];
+	var symopt = [], nrf = [ 1 ], sfh = [], sfk = [];
+	var constvacconc = [], va = [], vb = [];
+	var ta1 = [], ta2 = [], tb1 = [], tb2 = [], tc1 = [], tc2 = [], td1 = [], td2 = [];
+	var xpsx = [], xpsy = [], sffac = [], absfac = [];
+	var maskdepth = [], maskconstvacconc = [], maskva = [], maskvb = [];
+	var maskta1 = [], maskta2 = [], masktb1 = [], masktb2 = [];
+	var masktc1 = [], masktc2 = [], masktd1 = [], masktd2 = [];
+	var maskxpsx = [], maskxpsy = [], masksffac = [], maskabsfac = [];
+	var uncedepth = [], unceconstvacconc = [], unceva = [], uncevb = [];
+	var unceta1 = [], unceta2 = [], uncetb1 = [], uncetb2 = [];
+	var uncetc1 = [], uncetc2 = [], uncetd1 = [], uncetd2 = [];
+	var uncexpsx = [], uncexpsy = [], uncesffac = [], unceabsfac = [];
+
+	// Pattern I/O
+	var in_opt = "0", expint = "in.dat", bmname = "out.dat", mbout = 1, hin = [], kin = [];
+	var nump, numl, gradopt = 1, ay, bee, nothing, cee, dee, naught, cbx, cby, bs, tbx, iref, iref_opt;
+	var masktx = false, maskty = false, maskts = false, masktt = false;
+	var uncetx, uncety, uncets, uncett;
+	
+	// Refinement settings
+	var method, paraopt, loops, maxcycles, maxiters, minunce, maxtemp, mintemp, coolrate;
+	var msp_opt1 = "fftsg", msp_opt2, msp_opt3, test_opt1 = [], test_opt2 = [], test_opt3 = [];
+	var mpi_mode = [], ntest, rtest, msp_timer, sgl_opt = [];
+	var msp_ratio = [], msp_meth = [], msp_dev = [], msp_splt = [];
+	var unce = [];
+	var tl = 0, hM = 0, rU = 0;
 </script>
 
-<script type="text/javascript">
-	function DelParent(e, m) {
-		e.parentNode.remove();
-		m();
+	<script type="text/javascript">
+	function ReplaceRefineSpan(p, n, f, r) {
+		var e = p.querySelector('[class=\"' + "refine" + n + '\"]');
+		e.innerHTML = document.getElementById('refine_tpl').innerHTML;
+		var s = e.querySelector('select'); 
+		s.name = "mask" + n, s.options[0].value = f, s.options[1].value = r;
+		e.querySelector('[class="unce"]').name = "unce" + n;
+	}
+	
+	function Change_Divider() {
+		var d = document.getElementById("divider").value;
+		var l = document.getElementById("left_panel");
+		var r = document.getElementById("right_panel");
+		
+		l.style.width = d + "%";
+		r.style.width = (100 - d) + "%";
 	}
 
-	function ReplaceRefineSpan(n, m) {
-		var e = document.querySelector('[class=' + n + ']');
-		e.innerHTML = document.getElementById('refine_tpl').innerHTML;
-		e.querySelector('[type="checkbox"]').name = m;
+	function ChangeRefine(e) {
+		var s = e.selectedIndex, un = e.parentNode.querySelector('[class="unce"]');
+		if (s > 0) {
+			un.disabled = false;
+			e.className = "refine";
+		} else {
+			un.disabled = true;
+			e.className = "fixed";
+		}
+	}
+
+	function Change_AbsorbC(e) {
+		var s = e.value, p = e.parentNode;
+		var c = p.querySelector('[name="inelc[]"]');
+		var un = p.querySelector('[name="unceinelc[]"]');
+		if (s == -1) {
+			c.disabled = true;
+			un.disabled = true;
+			e.className = "fixed";
+		} else if (s == 0) {
+			c.disabled = false;
+			un.disabled = true;
+			e.className = "fixed";
+		} else {
+			c.disabled = false;
+			un.disabled = false;
+			e.className = "refine";
+		}
+	}
+
+	function Change_maskdepth(e) {
+		var s = e.value, p = e.parentNode;
+		var un = p.querySelector('[class="unce"]');
+
+		if (s == 0) {
+			un.disabled = true;
+			e.className = "fixed";
+		} else {
+			un.disabled = false;
+			e.className = "refine";
+		}
 	}
 
 	function VarToForm_misc() {
-		ReplaceRefineSpan("kvopt", "kvopt");
-		ReplaceRefineSpan("maskdilation", "maskdilation");
-
+		ReplaceRefineSpan(document, "kv", 0, 1);
+		ReplaceRefineSpan(document, "dilation", 0, 1);
+		
+		var f = document.querySelector('[name="iam_path"]');
+		if (prog == "qcbedms")
+			f.disabled = true, iam_path = "N/A"; 
 	}
 
 	function VarToForm_pr() {
-		document.getElementById('npr_disp').innerText = npr;
+		if (prog == "qcbedms") {
+			document.getElementById('pr_label').style.display = "";
+			npr = nslice, document.querySelector('[name="npr"]').disabled = true
+		}
 		var list = document.getElementById('pr_list');
 		while (list.firstChild)
 			list.removeChild(list.firstChild);
 
 		for (var i = 0; i < npr; i++) {
 			var div = document.getElementById('pr_tpl').cloneNode(true);
-			div.removeAttribute("style");
 			div.removeAttribute("id");
-			div.querySelector('b').innerText = i + 1;
+			div.querySelector('b').innerText = "Propagator #" + (i + 1) + ":";
 			list.appendChild(div);
+			if (i != npr - 1) {
+				var hr = document.createElement("hr");
+				list.appendChild(hr);
+			}
 		}
 	}
 
-	function Add_pr() {
-		FormToVar();
-		npr++;
-		VarToForm_pr()
-	}
-
-	function Del_pr() {
-		FormToVar();
-		npr--;
-		VarToForm_pr()
-	}
-
-	function VarToForm_atom_type(ntype1) {
-		ntype = ntype1;
-		document.getElementById('ntype_disp').innerText = ntype;
+	function VarToForm_atom_type() {
 		var list = document.getElementById('atom_type_list');
 		while (list.firstChild)
 			list.removeChild(list.firstChild);
 
 		for (var i = 0; i < ntype; i++) {
 			var div = document.getElementById('atom_type_tpl').cloneNode(true);
-			div.removeAttribute("style");
 			div.removeAttribute("id");
-			div.querySelector('b').innerText = i + 1;
-			list.appendChild(div);
-		}
+			div.querySelector('b').innerText = "Type #" + (i + 1) + ":";
 
-		if (absorb)
-			document.getElementById('absorb_opt').checked = true;
-		else
-			document.getElementById('absorb_opt').checked = false;
-
-		absorb_opt_changed();
-	}
-
-	function absorb_opt_changed() {
-		absorb = document.getElementById('absorb_opt').checked
-		children = document.getElementsByClassName("absorption");
-
-		for (var i = 0; i < children.length; i++) {
-			if (absorb)
-				children[i].style.display = "";
+			ReplaceRefineSpan(div, "dw_uni\[\]", 0, 1);
+			ReplaceRefineSpan(div, "inela\[\]", 0, 1);
+			ReplaceRefineSpan(div, "inelb\[\]", 0, 1);
+			
+			if (dw_fmt == "unique")
+				div.querySelector('[class="dw_uni_ctn"]').style.display = "";
 			else
-				children[i].style.display = "none";
+				div.querySelector('[class="dw_uni_ctn"]').style.display = "none";
+			
+			if (absorb_opt == "YES_ABSORPTION")
+				div.querySelector('[class="absorption"]').style.display = "";
+			else
+				div.querySelector('[class="absorption"]').style.display = "none";
+
+			list.appendChild(div);
 		}
 	}
 
 	function VarToForm_region() {
-		document.querySelector('[name="nregions"]').value = nregions;
 		var list = document.getElementById('region_list');
 		while (list.firstChild)
 			list.removeChild(list.firstChild);
 
-		var is = 0;
+		var is = 0, kb = 0, jsf = 0;
 
 		for (var i = 0; i < nregions; i++) {
 			var regi = document.getElementById('region_tpl').cloneNode(true);
 			regi.removeAttribute("style");
 			regi.removeAttribute("id");
-			regi.querySelector('[class="region_no"]').innerText = i + 1;
+			regi.querySelector('b').innerText = "Region " + (i + 1) +":";
+
+			var maskdepthi = regi.querySelector('[name="maskdepth[]"]');
+			if (nregions > 1 || prog == "qcbedms") {
+				maskdepthi.querySelector('[value="2"]').disabled = true;
+				if (maskdepth[i] == 2)
+					maskdepth[i] = 1;
+			} else
+				maskdepthi.querySelector('[value="2"]').disabled = false;
+			maskdepthi.value = maskdepth[i];
+			Change_maskdepth(maskdepthi);
+
+			ReplaceRefineSpan(regi, "constvacconc\[\]", 0, 1);
+			ReplaceRefineSpan(regi, "va\[\]", 0, 1);
+			ReplaceRefineSpan(regi, "vb\[\]", 0, 1);
 
 			if (typeof rnsl[i] === 'undefined')
 				rnsl[i] = 1;
-			regi.querySelector('[name="rnsl[]"]').value = rnsl[i];
 			var pg_list = regi.querySelector('[class="pg_list"]');
 
 			for (var j = 0; j < rnsl[i]; j++) {
 				var pgj = document.getElementById('pg_tpl').cloneNode(true);
-				pgj.style.display = "";
 				pgj.removeAttribute("id");
-				pgj.querySelector('[class="pg_no"]').innerText = j + 1;
+				pgj.querySelector('b').innerText = "Slice #" + (j + 1) + ":";
+				
+				for (var k = 0; k < npr; k++) {
+					var o = document.createElement("option");
+					o.value = k + 1, o.text = (k + 1);
+					pgj.querySelector('[name="slpr[]"]').add(o);
+				}
+				
+				if (prog == "qcbedms-pf")
+					pgj.querySelector('[name="slpr[]"]').disabled = false;
+				else
+					pgj.querySelector('[name="slpr[]"]').disabled = true;
 
 				if (typeof nball[is] === 'undefined')
 					nball[is] = 1;
-				pgj.querySelector('[name="nball[]"]').value = nball[is];
 				var ball_list = pgj.querySelector('[class="ball_list"]');
 
 				for (var k = 0; k < nball[is]; k++) {
-					var iball = document.getElementById('ball_tpl').cloneNode(
-							true);
-					iball.style.display = "";
+					var iball = document.getElementById('ball_tpl').cloneNode(true);
 					iball.removeAttribute("id");
-					iball.querySelector('[class="ball_no"]').innerText = k + 1;
+					iball.querySelector('b').innerText = "Atom " + (k + 1) + ":";
+					
+					for (var l = 0; l < ntype; l++) {
+						var o = document.createElement("option");
+						o.value = l + 1, o.text = (l + 1) + ". " + label[l];
+						iball.querySelector('[name="itype[]"]').add(o);
+					}
+
+					ReplaceRefineSpan(iball, "xpsx\[\]", 0, 1);
+					ReplaceRefineSpan(iball, "xpsy\[\]", 0, 1);
 
 					ball_list.appendChild(iball);
+					
+					if (k != nball[is] - 1) {
+						var hr = document.createElement("hr");
+						ball_list.appendChild(hr);
+					}
+					kb++;
 				}
 
 				is++;
@@ -144,58 +1332,90 @@
 				pg_list.appendChild(pgj);
 			}
 
-			if (coord_opt == "side_angle")
+			var vc = regi.querySelector(".vacancy_constant");
+			var ve = regi.querySelector(".vacancy_equation");
+			if (concflag[i] > 0) {
+				vc.style.display = "none";
+				ve.style.display = "";
+			} else {
+				vc.style.display = "";
+				ve.style.display = "none";
+			}
+
+			if (coord_fmt == "side_angle")
 				regi.querySelector('[class="3_points"]').style.display = "none";
 			else
 				regi.querySelector('[class="3_points"]').style.display = "";
 
-			if (coord_opt == "4_points")
+			if (coord_fmt == "4_points")
 				regi.querySelector('[class="4_points"]').style.display = "";
 			else
 				regi.querySelector('[class="4_points"]').style.display = "none";
 
+			ReplaceRefineSpan(regi, "ta1\[\]", "N", "Y");
+			ReplaceRefineSpan(regi, "ta2\[\]", "N", "Y");
+			ReplaceRefineSpan(regi, "tb1\[\]", "N", "Y");
+			ReplaceRefineSpan(regi, "tb2\[\]", "N", "Y");
+			ReplaceRefineSpan(regi, "tc1\[\]", "N", "Y");
+			ReplaceRefineSpan(regi, "tc2\[\]", "N", "Y");
+			ReplaceRefineSpan(regi, "td1\[\]", "N", "Y");
+			ReplaceRefineSpan(regi, "td2\[\]", "N", "Y");
+			
+			if (dw_fmt == "various") 
+				regi.querySelector('[class="dw_var_ctn"]').style.display = "";
+			else
+				regi.querySelector('[class="dw_var_ctn"]').style.display = "none";
+
+			for (var j = 0; j < ntype; j++) {
+				var idw = document.getElementById('dw_var_tpl').cloneNode(true);
+				idw.querySelector('[class="atom_type"]').innerText 
+					= "Type #" + (j + 1) + ". " + label[j] + " =";
+				
+				ReplaceRefineSpan(idw, "dw_var\[\]", 0, 1);
+				
+				regi.querySelector('[class="dw_var_list"]').appendChild(idw);
+			}
+
 			if (typeof nrf[i] === 'undefined')
 				nrf[i] = 0;
-			regi.querySelector('[name="nrf[]"]').value = nrf[i];
 			for (var j = 0; j < nrf[i]; j++) {
 				var isf = document.getElementById('sf_tpl').cloneNode(true);
-				isf.style.display = "";
 				isf.removeAttribute("id");
-				isf.querySelector('[class="sf_no"]').innerText = j + 1;
+				isf.querySelector('[class="sf_no"]').innerText = j + 1 + ".";
+
+				ReplaceRefineSpan(isf, "sffac\[\]", "N", "Y");
+				ReplaceRefineSpan(isf, "absfac\[\]", "N", "Y");
 
 				regi.querySelector('[class="sf_list"]').appendChild(isf);
+
+				jsf++;
 			}
 
 			list.appendChild(regi);
 		}
-	}
 
-	function vacancy_option_changed(v) {
-		var vo = v.value;
-		var vc = v.parentNode.parentNode.querySelector(".vacancy_constant");
-		var ve = v.parentNode.parentNode.querySelector(".vacancy_equation");
-		if (vo > 0) {
-			vc.style.display = "none";
-			ve.style.display = "";
-		} else {
-			vc.style.display = "";
-			ve.style.display = "none";
-		}
+		if (prog == "qcbedms")
+			for (var i = 0; i < nslice; i++)
+				slpr[i] = i + 1;
 	}
 
 	function VarToForm_pattern() {
-		var inpf = document.getElementById("input_file");
-		var inpd = document.getElementById("input_dim");
+		var inpf = document.getElementById("in_file");
+		var inpd = document.getElementById("in_dim");
+		
+		if(prog == "qcbedms")
+			in_opt = "0", document.querySelector('[name="in_opt"]').disabled = true;
+		else
+			document.querySelector('[name="in_opt"]').disabled = false;
 
-		if (input_opt === "0") {
-			inpf.style.display = "";
+		if (in_opt == "0") {
+			inpf.style.display = "flex";
 			inpd.style.display = "none";
 		} else {
 			inpf.style.display = "none";
 			inpd.style.display = "";
 		}
 
-		document.querySelector('[name="mbout"]').value = mbout;
 		var list = document.getElementById('bout_list');
 		while (list.firstChild)
 			list.removeChild(list.firstChild);
@@ -208,735 +1428,644 @@
 			list.appendChild(div);
 		}
 
-		if (coord_opt == "side_angle")
+		if (coord_fmt == "side_angle")
 			document.getElementById("side_angle").style.display = "";
 		else
 			document.getElementById("side_angle").style.display = "none";
+
+		ReplaceRefineSpan(document, "tx", "N", "Y");
+		ReplaceRefineSpan(document, "ty", "N", "Y");
+		ReplaceRefineSpan(document, "ts", "N", "Y");
+		ReplaceRefineSpan(document, "tt", "N", "Y");
+
+		var n = document.querySelector('[name="iref"]');
+		if (iref_opt > 0)
+			n.disabled = false;
+		else
+			iref = iref_opt, n.disabled = true;
 	}
 
 	function VarToForm_refinement() {
-		document.querySelector('[name="nhyb"]').value = nhyb;
-		var list = document.getElementById('fft_list');
+		var pll = document.getElementById('pll');
+		pll.innerHTML = FormParallelChild(msp_opt1, "Parallelisation:", null, "").innerHTML;
+		var list = document.getElementById('pll_list');
 		while (list.firstChild)
 			list.removeChild(list.firstChild);
 
-		for (var i = 0; i < nhyb; i++) {
-			var div = document.getElementById('fft_tpl').cloneNode(true);
-			div.removeAttribute("style");
-			div.removeAttribute("id");
-			div.querySelector('[class="fft_no"]').innerText = i + 1;
-
-			if (typeof msp_ratio[i] === 'undefined')
-				msp_ratio[i] = 1;
-			div.querySelector('[name="msp_ratio[]"]').value = msp_ratio[i];
-
-			if (typeof msp_meth[i] === 'undefined')
-				msp_meth[i] = "fftw";
-			div.querySelector('[name="msp_meth[]"]').value = msp_meth[i];
-
-			if (typeof msp_dev[i] === 'undefined') {
-				if (msp_meth[i] == "fftsg" || msp_meth[i] == "fftw")
-					msp_dev[i] = 1;
-				else
-					msp_dev[i] = 0;
+		if (prog == "qcbedms-pf") 
+			hM = 0, FormParallel(msp_opt1, msp_opt2, list);
+	}
+	
+	function FormParallel(opt1, opt2, c) {
+		if (opt1 == "test") {
+			for (var j = 0; j < opt2; j++) {
+				c.appendChild(FormParallelChild(test_opt1[j], "Test " + (j + 1) + ".", null, "test"));
+				if (test_opt1[j] == "hybrid" || test_opt1[j] == "mpi") {
+					var div = document.createElement("div");
+					FormParallel(test_opt1[j], test_opt2[j], div);
+					c.appendChild(div);
+				}
 			}
-			div.querySelector('[name="msp_dev[]"]').value = msp_dev[i];
-
-			if (typeof msp_splt[i] === 'undefined')
-				msp_splt[i] = 0;
-			div.querySelector('[name="msp_splt[]"]').value = msp_splt[i];
-
-			if (msp_meth[i] != "fftsg")
-				div.querySelector('[name="msp_dev[]"]').style.display = "";
-
-			if (msp_meth[i] == "fftw")
-				div.querySelector('[class="fftw"]').style.display = "";
-
-			if (msp_meth[i] == "clfft")
-				div.querySelector('[class="opencl"]').style.display = "";
-
-			if (msp_meth[i] == "cufft")
-				div.querySelector('[class="cuda"]').style.display = "";
-
-			if (msp_meth[i] == "clfft" || msp_meth[i] == "cufft")
-				div.querySelector('[class="gpu_opt"]').style.display = "";
-
-			list.appendChild(div);
+		} else if (opt1 == "hybrid" || opt1 == "mpi") {
+			for (var i = 0; i < opt2; i++) {
+				c.appendChild(FormParallelChild(msp_meth[hM], "" + (i + 1) + ".", hM++, "hybrid"));
+			}
 		}
 	}
+	
+	function FormParallelChild(opt, b, h, m) {
+		var div = document.getElementById('pll_tpl').cloneNode(true);
+		div.removeAttribute("id");
+		div.querySelector('b').innerText = b;
+		var opt1 = div.querySelector('[name="msp_opt1"]');
+		var opt2 = div.querySelector('[name="msp_opt2"]');
+		var opt3 = div.querySelector('[name="msp_opt3"]');
+		var ratio = div.querySelector('[name="msp_ratio[]"]');
+		if (typeof opt === "undefined")
+			opt = "";
+		
+		if (prog == "qcbedms")
+			opt = msp_opt1 = "fftsg", msp_opt2 = 1, msp_opt3 = 1, opt1.disabled = true;
 
-	function Change_input() {
-		FormToVar();
-		VarToForm();
+		if (m == "test") {
+			opt1.name = "test_opt1[]", opt2.name = "test_opt2[]", opt3.name = "test_opt3[]";
+			opt1.remove(6), ratio.parentNode.remove();
+		} else if (m == "hybrid") {
+			opt1.name = "msp_meth[]", opt2.name = "msp_dev[]", opt3.name = "msp_splt[]";
+			opt1.remove(6), opt1.remove(5), opt1.remove(4), opt1.remove(0);
+			ratio.parentNode.style.display = "";
+			if (opt == "fftsg") 
+				msp_dev[h] = 1;
+			if (opt == "fftsg" || opt == "fftw")
+				msp_splt[h] = 1;
+		} else {
+			if (opt == "fftsg") 
+				msp_opt2 = 1;
+			if (opt == "fftsg" || opt == "fftw")
+				msp_opt3 = 1;
+			ratio.parentNode.remove();
+		}
+		
+		if (opt == "hybrid" | opt == "mpi" | opt == "test")  {
+			opt2.className = "n", opt2.type = "number", opt2.setAttribute("onchange", "Refresh()");
+			if (opt == "test") {
+				div.querySelector('[class="ntest"]').style.display = "";
+				div.querySelector('[class="rtest"]').style.display = "";
+			}
+			if (opt == "hybrid" | opt == "mpi") {
+				div.querySelector('[class="nhyb"]').style.display = "";
+				div.querySelector('[class="hyb_redi1"]').style.display = "";
+				div.querySelector('[class="hyb_redi2"]').style.display = "";
+			}
+			div.querySelector('[name="sgl_opt[]"]').remove();
+		} else {
+			div.querySelector('[class="splt"]').style.display = "";
+			if (opt == "fftsg") 
+				opt2.disabled = true;
+			if (opt == "fftsg" || opt == "fftw")
+				opt3.disabled = true, div.querySelector('[class="fftw"]').style.display = "";
+			if (opt == "clfft")
+				div.querySelector('[class="opencl"]').style.display = "";
+			if (opt == "cufft")
+				div.querySelector('[class="cuda"]').style.display = "";
+		}
+		
+		if (opt != "test")
+			div.querySelector('[class="timer"]').remove();
+		if (opt == "hybrid") {
+			div.querySelector('[name="mpi_mode[]"]').style.display = "none";
+		} else if (opt != "mpi" && opt != "hybrid")
+			div.querySelector('[name="mpi_mode[]"]').remove();
+		if (opt == "clfft" && m != "hybrid")
+			div.querySelector('[name="sgl_opt[]"]').style.display = "";
+		
+		return div;
 	}
-
-	function Change_refine(e) {
-		var c = e.checked;
-		var p = e.parentNode, un = p.querySelector('span');
-		if (c)
-			un.style.display = "";
-		else
-			un.style.display = "none";
+	
+	function ResetVariables(f) {
+		for (var i of document.getElementById("form").querySelectorAll('input, select')) {
+			if (i.name.endsWith("[]")) 
+				window[i.name.replace(/[[\]]/g, '')] = [];
+			else
+				window[i.name] = "";
+		}
+		test_opt1 = [], test_opt2 = [], test_opt3 = [], msp_meth = [], msp_dev = [], msp_splt = [];
 	}
 
 	function VarToForm() {
 		VarToForm_misc();
 		VarToForm_pr();
-		VarToForm_atom_type(ntype);
+		VarToForm_atom_type();
 		VarToForm_region();
 		VarToForm_pattern();
 		VarToForm_refinement();
+
+		var f = document.getElementById("form");
+		
+		for (var i of f.querySelectorAll('input, select')) {
+			var j0 = 0, iname = i.name;
+			if (iname.endsWith("[]"))
+				iname = iname.replace("[]]", "\[\]")
+			for (var j of f.querySelectorAll('[name=\"' + iname + '\"]'))
+				j.value = eval(i.name.replace("]", j0++ + "]"));
+		}
+		
+		for (var c of f.querySelectorAll('span[class^="refine"]')) {
+			var s = c.querySelector("select");
+			if (s.selectedIndex < 0)
+				s.selectedIndex = 0;
+			var d = c.querySelector("input");
+			if (d.value == "" || d.value == "undefined")
+				d.value = 0.1;
+			ChangeRefine(s);
+		}
+		
+		for (var c of f.querySelectorAll('[name="maskinelc[]"]'))
+			Change_AbsorbC(c);
+		
+		var v = document.getElementById("fmt");
+		for (var i of v.querySelectorAll('input, select'))
+			i.value = eval(i.name);
 	}
 
 	function FormToVar() {
-		var f = new FormData(document.getElementById("form"));
-
-		coord_opt = f.get("coord_opt");
-
-		nregions = f.get("nregions");
-		depth = f.getAll("depth[]");
-		tmask = f.getAll("tmask[]");
-		concflag = f.getAll("concflag[]");
-		constvacconc = f.getAll("constvacconc[]");
-		maskconstvacconc = f.getAll("maskconstvacconc[]");
-		va = f.getAll("va[]");
-		maskva = f.getAll("maskva[]");
-		vb = f.getAll("vb[]");
-		maskvb = f.getAll("maskvb[]");
-		fstype = f.getAll("fstype[]");
-		binda = f.getAll("binda[]");
-		bindb = f.getAll("bindb[]");
-		bindc = f.getAll("bindc[]");
-
-		rnsl = f.getAll("rnsl[]");
-		nball = f.getAll("nball[]");
-		rtype = f.getAll("rtype[]");
-		slpr = f.getAll("slpr[]");
-		itype = f.getAll("itype[]");
-		xpsx = f.getAll("xpsx[]");
-		xpsy = f.getAll("xpsy[]");
-		maskxpsx = f.getAll("maskxpsx[]");
-		maskxpsy = f.getAll("maskxpsy[]");
-		occ = f.getAll("occ[]");
-		nrf = f.getAll("nrf[]");
-
-		input_opt = f.get("input_opt");
-		mbout = f.get("mbout");
-
-		nhyb = f.get("nhyb");
-		msp_ratio = f.getAll("msp_ratio[]");
-		msp_meth = f.getAll("msp_meth[]");
-		msp_dev = f.getAll("msp_dev[]");
-		msp_splt = f.getAll("msp_splt[]");
-
-		// 		 = f.getAll("[]");
-		// 		 = f.getAll("[]");
+		for (var i of document.getElementById("fmt").querySelectorAll('select')) 
+			window[i.name] = i.value;
+		
+		var f = document.getElementById("form");
+		ResetVariables();
+		
+		for (var i of f.querySelectorAll('input, select')) {
+			if (i.name.endsWith("[]")) 
+				window[i.name.replace(/[[\]]/g, '')].push(i.value);
+			else 
+				window[i.name] = i.value;
+		}
+		
+		rnsl = rnsl.map(Number);
+		nslice = rnsl.reduce(function(a, b) { return a + b; }, 0);
 	}
 
-	function submit() {
-		FormToVar();
+	function TextToForm() {
+		ResetVariables();
+		
+		var t = document.getElementById("txt").value.split("\n");
+		t = t.filter(function(item) {
+			return !(item.startsWith("#"))
+		});
+		
+		var ti = [];
+		tl = 0;
+		title = t[tl++];
+		[kv, maskkv, ...indz] = t[tl++].match(/\S+/g) || [];
+		[npr, meshx, meshy] = t[tl++].match(/\S+/g) || [];
+		for (var i = 0; i < npr; i++)
+			[cell2d_a[i], cell2d_b[i], gammareal[i], deltaz[i], xshift[i], yshift[i]] 
+					= t[tl++].match(/\S+/g) || [];
+		if (prog == "qcbedms-pf")
+			iam_path = t[tl++];
+		[ ntype ] = t[tl++].match(/\S+/g) || [];
+		for (var i = 0; i < ntype; i++) {
+			if (prog == "qcbedms-pf")
+				[label[i], zt[i]] = t[tl++].match(/\S+/g) || [];
+			else
+				label[i] = t[tl++].match(/\S+/g) || [], zt[i] = t[tl++].match(/\S+/g) || [];
+		}
+		[ dsap ] = t[tl++].match(/\S+/g) || [];
+		[ dsmax ] = t[tl++].match(/\S+/g) || [];
+		[ nregions ] = t[tl++].match(/\S+/g) || []; 
+		ti = t[tl++].match(/\S+/g) || [];
+		for (var i = 0; i < nregions; i++)		
+			depth[i] = ti[i * 2], maskdepth[i] = ti[i * 2 + 1];
+		rnsl = (t[tl++].match(/\S+/g) || []).map(Number);
+		nslice = rnsl.reduce(function(a, b) { return a + b; }, 0);
+		for (var i = 0; i < nregions; i++) {
+			[ concflag[i] ] = t[tl++].match(/\S+/g) || [];
+			if (concflag[i] == 0)
+				[ constvacconc[i], maskconstvacconc[i] ] = t[tl++].match(/\S+/g) || [];
+			else
+				[ va[i], maskva[i], vb[i], maskvb[i] ] = t[tl++].match(/\S+/g) || [];
+		}
+		[dilation, maskdilation] = t[tl++].match(/\S+/g) || [];
+		[ absorb_opt ] = t[tl++].match(/\S+/g) || [];
+		if (absorb_opt.startsWith("YE")) {
+			for (var i = 0; i < ntype; i++)
+		 		[inela[i], maskinela[i], inelb[i], maskinelb[i], inelc[i], maskinelc[i]] 
+		 				= t[tl++].match(/\S+/g) || [];
+		}
+		if (dw_fmt == "unique") {
+			ti = t[tl++].match(/\S+/g) || [];
+			for (var j = 0; j < ntype; j++)
+				dw_uni[j] = ti[j * 2], maskdw_uni[j] = ti[j * 2 + 1];
+		}
+		for (var i = 0; i < nregions; i++) {
+			if (dw_fmt == "various") {
+				if (prog == "qcbedms-pf") {
+					ti = t[tl++].match(/\S+/g) || [];
+					for (var j = 0; j < ntype; j++)
+						dw_var[i * ntype + j] = ti[j * 2], maskdw_var[i * ntype + j] = ti[j * 2 + 1];
+				} else {
+					ti = t[tl++].match(/\S+/g) || [];
+					for (var j = 0; j < ntype; j++)
+						dw_var[i * ntype + j] = ti[j];
+					ti = t[tl++].match(/\S+/g) || [];
+					for (var j = 0; j < ntype; j++)
+						maskdw_var[i * ntype + j] = ti[j];
+				}
+			} 
+			
+	 		[fstype[i], binda[i], bindb[i], bindc[i]] = t[tl++].match(/\S+/g) || [];
+		}
+		for (var i = 0; i < nslice; i++) {
+			if (prog == "qcbedms-pf")
+	 			[nball[i], rtype[i], slpr[i]] = t[tl++].match(/\S+/g) || [];
+			else
+	 			[nball[i], rtype[i]] = t[tl++].match(/\S+/g) || [];
+			
+	 		for (var j = 0, k = i * nball[i]; j < nball[i]; j++, k++)
+	 	 		[itype[k], xpsx[k], maskxpsx[k], xpsy[k], maskxpsy[k], occ[k]] = t[tl++].match(/\S+/g) || [];
+		}
+		bmname = t[tl++];
+		[ mbout ] = t[tl++].match(/\S+/g) || [];
+		for (var i = 0; i < mbout; i++) 
+			[hin[i], kin[i]] = t[tl++].match(/\S+/g) || [];
+		ti = t[tl++].match(/\S+/g) || [];
+		if (ti.length == 1)
+			expint = ti[0], in_opt = "0";
+		else 
+			[in_opt, nump, numl, gradopt] = ti;
+		[ay, bee, nothing] = t[tl++].match(/\S+/g) || [];
+		[cee, dee, naught] = t[tl++].match(/\S+/g) || [];
+		if(coord_fmt == "side_angle") {
+	 		[cbx, cby] = t[tl++].match(/\S+/g) || [];
+	 		[bs, tbx] = t[tl++].match(/\S+/g) || [];
+	 		[masktx, maskty] = t[tl++].match(/\S+/g)[0].split("") || [];
+	 		[maskts, masktt] = t[tl++].match(/\S+/g)[0].split("") || [];
+		} else
+			for (var i = 0; i < nregions; i++) {
+		 		[ta1, ta2] = t[tl++].match(/\S+/g) || [];
+		 		[tb1, tb2] = t[tl++].match(/\S+/g) || [];
+		 		[tc1, tc2] = t[tl++].match(/\S+/g) || [];
+		 		if (coord_fmt == "4_points")
+		 			[td1, td2] = t[tl++].match(/\S+/g) || [];
+		 		[maskta1[i], maskta2[i]] = t[tl++].match(/\S+/g)[0].split("") || [];
+		 		[masktb1[i], masktb2[i]] = t[tl++].match(/\S+/g)[0].split("") || [];
+		 		[masktc1[i], masktc2[i]] = t[tl++].match(/\S+/g)[0].split("") || [];
+		 		if (coord_fmt == "4_points")
+		 			[masktd1[i], masktd2[i]] = t[tl++].match(/\S+/g)[0].split("") || [];
+			}
+		[iref] = t[tl++].match(/\S+/g) || [], iref_opt = Number(iref);
+		if (iref_opt > 0)
+			iref_opt = 1;
+		for (var i = 0, k1 = 0, k2 = 0; i < nregions; i++) {
+	 		[nrf[i]] = t[tl++].match(/\S+/g) || [];
+	 		[symopt[i]] = t[tl++].match(/\S+/g) || [];
+			for (var j = 0; j < nrf[i]; j++, k1++) 
+		 		[sfh[k1], sfk[k1], sffac[k1], absfac[k1]] = t[tl++].match(/\S+/g) || [];
+			for (var j = 0; j < nrf[i]; j++, k2++) 
+		 		[masksffac[k2], maskabsfac[k2]] = t[tl++].match(/\S+/g)[0].split("") || [];
+		}
+		[method, paraopt] = t[tl++].match(/\S+/g) || [];
+		[loops] = t[tl++].match(/\S+/g) || [];
+		[maxiters] = t[tl++].match(/\S+/g) || [];
+		[maxcycles] = t[tl++].match(/\S+/g) || [];
+		[minunce] = t[tl++].match(/\S+/g) || [];
+		if (prog == "qcbedms")
+			tl++;
+		[maxtemp] = t[tl++].match(/\S+/g) || [];
+		[mintemp] = t[tl++].match(/\S+/g) || [];
+		[coolrate] = t[tl++].match(/\S+/g) || [];
+		unce = t[tl++].match(/\S+/g) || [];
+		SortUnce("v=u");
+		
+		test_opt1 = [], test_opt2 = [], test_opt3 = []; 
+		msp_ratio = [], msp_meth = [], msp_dev = [], msp_splt = [];
+		sgl_opt = [], mpi_mode = [];
+		
+		hM = 0;
+		if (prog == "qcbedms-pf")
+			ReadTXTParallel(t, 0);
+// 		[] = t[tl++].match(/\S+/g) || [];
+		
+		VarToForm();
 	};
+	
+	function ReadTXTParallel(t, h) {
+		[ test_opt1[h], test_opt2[h], test_opt3[h] ] = t[tl++].match(/\S+/g) || [];
+		msp_opt1 = test_opt1[h].toLowerCase();
+		msp_opt2 = Math.abs(test_opt2[h]);
+		msp_opt3 = Math.abs(test_opt3[h]);
+		if (msp_opt1 == "test") {
+			var ntest = msp_opt2, rtest = msp_opt3;
+			if (test_opt3[0] < 0)
+				msp_timer = "true";
+			else
+				msp_timer = "false";
+			
+			for (var i = 0; i < ntest; i++) 
+				ReadTXTParallel(t, i);
+			msp_opt1 = "test", msp_opt2 = ntest, msp_opt3 = rtest;
+		} else if (msp_opt1 == "hybrid" || msp_opt1 == "mpi") {
+			for (var i = 0; i < msp_opt2; i++) 
+				[ msp_ratio[hM], msp_meth[hM], msp_dev[hM], msp_splt[hM++] ] 
+					= t[tl++].match(/\S+/g) || [], msp_meth[i].toLowerCase();
+			if (test_opt2[h] < 0)
+				mpi_mode[h] = "pernode";
+			else
+				mpi_mode[h] = "default";
+		} else {
+			if (msp_opt3 < 0)
+				msp_opt3 = -msp_opt3, sgl_opt[h] = "single";
+			else
+				sgl_opt[h] = "double";
+		}
+	}
+	
+	function FormToText() {
+		FormToVar();
+		var t = [], ti = [];
+		tl = 0;
+		t[tl++] = title;
+		t[tl++] = [ kv, maskkv, indz[0], indz[1], indz[2] ];
+		t[tl++] = [npr, meshx, meshy];
+		for (var i = 0; i < npr; i++)
+			t[tl++] = [cell2d_a[i], cell2d_b[i], gammareal[i], deltaz[i], xshift[i], yshift[i]];
+		if (prog == "qcbedms-pf")
+			t[tl++] = iam_path;
+		t[tl++] = [ ntype ];
+		for (var i = 0; i < ntype; i++) {
+			if (prog == "qcbedms-pf")
+				t[tl++] = [label[i], zt[i]];
+			else
+				t[tl++] = label[i], t[tl++] = zt[i];
+		}
+		t[tl++] = [ dsap ];
+		t[tl++] = [ dsmax ];
+		t[tl++] = [ nregions ]; 
+		t[tl] = [];
+		for (var i = 0; i < nregions; i++)		
+			t[tl][i] = depth[i] + " " + maskdepth[i];
+		tl++;
+		t[tl++] = rnsl;
+		for (var i = 0; i < nregions; i++) {
+			t[tl++] = [ concflag[i] ];
+			if (concflag[i] == 0)
+				t[tl++] = [ constvacconc[i], maskconstvacconc[i] ];
+			else
+				t[tl++] = [ va[i], maskva[i], vb[i], maskvb[i] ];
+		}
+		t[tl++] = [dilation, maskdilation];
+		t[tl++] = [ absorb_opt ];
+		if (absorb_opt.startsWith("YE")) {
+			for (var i = 0; i < ntype; i++)
+				t[tl++] = [inela[i], maskinela[i], inelb[i], maskinelb[i], inelc[i], maskinelc[i]];
+		}
+		if (dw_fmt == "unique") {
+			t[tl] = "";
+			for (var j = 0; j < ntype; j++)
+				t[tl] += "   " + dw_uni[j] + " " + maskdw_uni[j];
+		}
+		for (var i = 0; i < nregions; i++) {
+			if (prog == "qcbedms-pf") {
+				t[tl] = "";
+				for (var j = 0; j < ntype; j++)
+					t[tl] += "   " + dw_var[i * ntype + j] + " " + maskdw_var[i * ntype + j];
+				tl++;
+			} else {
+				t[tl] = "";
+				for (var j = 0; j < ntype; j++)
+					t[tl] += "  " + dw_var[i * ntype + j];
+				t[++tl] = "";
+				for (var j = 0; j < ntype; j++)
+					t[tl] += "  " + maskdw_var[i * ntype + j];
+				tl++;
+			}
+			
+	 		t[tl++] = [fstype[i], binda[i], bindb[i], bindc[i]];
+		}
+		for (var i = 0; i < nslice; i++) {
+			if (prog == "qcbedms-pf")
+				t[tl++] = [nball[i], rtype[i], slpr[i]];
+			else
+				t[tl++] = [nball[i], rtype[i]];
+	 		for (var j = 0, k = i * nball[i]; j < nball[i]; j++, k++)
+	 			t[tl++] = [itype[k], xpsx[k], maskxpsx[k], xpsy[k], maskxpsy[k], occ[k]];
+		}
+		t[tl++] = bmname;
+		t[tl++] = [ mbout ];
+		for (var i = 0; i < mbout; i++) 
+			t[tl++] = [hin[i], kin[i]];
+		if (in_opt == "0")
+			t[tl++] = expint;
+		else 
+			t[tl++] = [in_opt, nump, numl, gradopt];
+		t[tl++] = [ay, bee, nothing];
+		t[tl++] = [cee, dee, naught];
+		if (coord_fmt == "side_angle") {
+			t[tl++] = [cbx, cby];
+			t[tl++] = [bs, tbx];
+			t[tl++] = masktx + maskty;
+			t[tl++] = maskts + masktt;
+		} else {
+			for (var i = 0; i < nregions; i++) {
+				t[tl++] = [ta1[i], ta2[i]];
+				t[tl++] = [tb1[i], tb2[i]];
+				t[tl++] = [tc1[i], tc2[i]];
+				if (coord_fmt == "4_points")
+					t[tl++] = [td1[i], td2[i]];
+			}
+			for (var i = 0; i < nregions; i++) {
+				t[tl++] = maskta1[i] + maskta2[i];
+				t[tl++] = masktb1[i] + masktb2[i];
+				t[tl++] = masktc1[i] + masktc2[i];
+				if (coord_fmt == "4_points")
+					t[tl++] = masktd1[i] + masktd2[i];
+			}
+		}
+		t[tl++] = [iref];
+		for (var i = 0, k1 = 0, k2 = 0; i < nregions; i++) {
+			t[tl++] = [nrf[i]];
+			t[tl++] = [symopt[i]];
+			for (var j = 0; j < nrf[i]; j++, k1++) 
+				t[tl++] = [sfh[k1], sfk[k1], sffac[k1], absfac[k1]];
+			for (var j = 0; j < nrf[i]; j++, k2++) 
+				t[tl++] = masksffac[k2] + maskabsfac[k2];
+		}
+		t[tl++] = [method, paraopt];
+		t[tl++] = [loops];
+		t[tl++] = [maxiters];
+		t[tl++] = [maxcycles];
+		t[tl++] = [minunce];
+		if (prog == "qcbedms")
+			t[tl++] = [ 0.0000001 ];
+		t[tl++] = [maxtemp];
+		t[tl++] = [mintemp];
+		t[tl++] = [coolrate];
+		SortUnce("u=v");
+		t[tl++] = unce;
+		
+		hM = 0;
+		if (prog == "qcbedms-pf") 
+			WriteTXTParallel(msp_opt1, msp_opt2, msp_opt3, t, 0);
+		else 
+			for (var i = 0; i < unce.length; i++)
+				t[tl++] = (1 - Number(unce[i])) + "  " + (1 + Number(unce[i]));
+		
+		var TXT = "";
+		for (var i = 0; i < t.length; i++) {
+			if (Array.isArray(t[i])) {
+				for (var j = 0; j < t[i].length; j++)
+					TXT += "  " + t[i][j];
+				TXT += "\n";
+			} else
+				TXT += t[i] + "\n";
+		}
+		
+		document.getElementById("txt").value = TXT;
+	}
+
+	function WriteTXTParallel(opt1, opt2, opt3, t, h) {
+		if (opt1 == "test") {
+			t[tl] = opt1 + "  " + opt2 + "  "; 
+			if (msp_timer == "true")
+				t[tl] += -opt3;
+			else
+				t[tl] += opt3;
+			tl++;
+			
+			for (var i = 0; i < msp_opt2; i++) 
+				WriteTXTParallel(test_opt1[i], Number(test_opt2[i]), Number(test_opt3[i]), t, i);
+		} else if (opt1 == "hybrid" || opt1 == "mpi") {
+			t[tl] = opt1 + "  ";
+			if (mpi_mode[h] == "pernode")
+				t[tl] += -opt2;
+			else
+				t[tl] += opt2;
+			t[tl++] += "  " + opt3;
+			for (var i = hM; i < hM + opt2; i++) 
+				t[tl++] = [ msp_ratio[i], msp_meth[i], msp_dev[i], msp_splt[i] ];
+			hM += Number(opt2);
+		} else {
+			
+			t[tl] = opt1 + "  " + opt2 + "  ";
+			if (sgl_opt[h] == "single")
+				t[tl++] += -opt3;
+			else
+				t[tl++] += opt3;
+		}
+	}
+	
+	function SortUnce(d) {
+		rU = 0;
+		function UnceCheck(d, v, y) {
+			if (eval("mask" + v) == y) {
+				if (d == "v=u")
+					eval("unce" + v + " = unce[rU++]");
+				else
+					unce[rU++] = eval("unce" + v);
+			}
+		}
+		
+		if (d == "u=v")
+			unce = [];
+		UnceCheck(d, "depth[0]", 2);
+		UnceCheck(d, "kv", 1);
+		for (var i = 0; i < nregions; i++)
+			UnceCheck(d, "depth[" + i + "]", 1);
+		for (var i = 0; i < nregions; i++) {
+			if (concflag[i] > 0) {
+				UnceCheck(d, "va[" + i + "]", 1);
+				UnceCheck(d, "vb[" + i + "]", 1);
+			} else 
+				UnceCheck(d, "constvacconc[" + i + "]", 1);
+		}
+		UnceCheck(d, "dilation", 1);
+		if (absorb_opt == "YES_ABSORPTION") 
+			for (var i = 0; i < ntype; i++) {
+				UnceCheck(d, "inela[" + i + "]", 1);
+				UnceCheck(d, "inelb[" + i + "]", 1);
+				UnceCheck(d, "inelc[" + i + "]", 1);
+			}
+		if (dw_fmt == "various")
+			for (var i = 0; i < nregions * ntype; i++)
+					UnceCheck(d, "dw_var[" + i + "]", 1);
+		else
+			for (var i = 0; i < ntype; i++)
+				UnceCheck(d, "dw_uni[" + i + "]", 1);
+		for (var i = 0, b = 0; i < nslice; i++)
+			for (var j = 0; j < nball[i]; j++, b++) {
+				UnceCheck(d, "xpsx[" + b + "]", 1);
+				UnceCheck(d, "xpsy[" + b + "]", 1);
+			}
+		if (coord_fmt == "side_angle") {
+			UnceCheck(d, "tx", "Y");
+			UnceCheck(d, "ty", "Y");
+			UnceCheck(d, "ts", "Y");
+			UnceCheck(d, "tt", "Y");
+		} else
+			for (var i = 0; i < nregions; i++) {
+				UnceCheck(d, "ta1[" + i + "]", "Y");
+				UnceCheck(d, "ta2[" + i + "]", "Y");
+				UnceCheck(d, "tb1[" + i + "]", "Y");
+				UnceCheck(d, "tb2[" + i + "]", "Y");
+				UnceCheck(d, "tc1[" + i + "]", "Y");
+				UnceCheck(d, "tc2[" + i + "]", "Y");
+				if (coord_fmt == "4_points") {
+					UnceCheck(d, "td1[" + i + "]", "Y");
+					UnceCheck(d, "td2[" + i + "]", "Y");
+				}
+			}
+		for (var i = 0, f = 0; i < nregions; i++) 
+			for (var j = 0; j < nrf[i]; j++, f++) {
+				UnceCheck(d, "sffac[" + f + "]", "Y");
+				UnceCheck(d, "absfac[" + f + "]", "Y");
+			}
+	}
+
+	function Refresh() {
+		FormToVar();
+		VarToForm();
+	}
+	
+	function LoadF7Tpl() {
+		f7_tpl = document.querySelector("[name='f7_tpl']").value
+		
+		if (f7_tpl.search("qcbedms") >= 0)
+			prog = "qcbedms";
+		if (f7_tpl.search("qcbedms-pf") >= 0)
+			prog = "qcbedms-pf";
+		
+		if (f7_tpl.search("dw-var") >= 0)
+			dw_fmt = "various";
+		else
+			dw_fmt = "unique";
+		
+		if (f7_tpl.search("side-angle") >= 0)
+			coord_fmt = "side_angle";
+		if (f7_tpl.search("3-points") >= 0)
+			coord_fmt = "3_points";
+		if (f7_tpl.search("4-points") >= 0)
+			coord_fmt = "4_points";
+		
+		var TXT = document.getElementById("txt");
+		
+		if (f7_tpl == "empty")
+			TXT.value = "";
+		else
+			TXT.value = document.getElementById(f7_tpl).value;
+		
+		TextToForm();
+	}
+	
+	function EmptyForm() {
+		ResetVariables();
+		nregions = nslice = npr = ntype = mbout = 1, rnsl = [1], nball = [1];
+		VarToForm();
+	}
+	
+	VarToForm();
+	LoadF7Tpl();
 </script>
 
-
-<style type="text/css">
-.pname {
-	display: inline;
-	padding: 0px 0px 0px 0px;
-}
-
-div {
-	padding: 3px;
-}
-
-.pfield {
-	align: left;
-	padding: 3px;
-}
-
-legend {
-	font-weight: bold;
-}
-
-.fieldset1 {
-	border: 2px solid black;
-	margin: 5px;
-}
-
-.fieldset2 {
-	border: 2px solid grey;
-	padding: 5px 10px;
-	margin: 3px;
-}
-
-.fieldset3 {
-	border: 1px solid;
-	padding: .1rem .5rem;
-	margin: 3px;
-}
-
-.string {
-	width: 800px;
-	background-color: MistyRose;
-}
-
-.int {
-	width: 50px;
-	background-color: AliceBlue;
-}
-
-.dble {
-	width: 100px;
-	background-color: LightYellow;
-}
-
-.plusmins {
-	font-family: monospace;
-	text-align: center;
-	padding: 0rem 0.5rem;
-}
-
-.unce {
-	width: 5rem;
-	border: .3rem solid Lime;
-/* 	margin: 0rem .1rem; */
-}
-</style>
-
-<body>
-	<form id="form">
-		<fieldset class="fieldset1">
-			<legend>QCBEDMS version</legend>
-			<div>
-				<b>Program version - </b>
-				<select name="program_ver" onchange="Change_input()">
-					<option value="qcbedms">QCBEDMS</option>
-					<option value="qcbedms-pf">QCBEDMS-PF</option>
-				</select>
-				<b>, Coordinate format - </b>
-				<select name="coord_opt" onchange="Change_input()">
-					<option value="side_angle">Box by 1 point + side + angle (4 values)</option>
-					<option value="3_points">Box by 3 points (6 values)</option>
-					<option value="4_points">Box by 4 points (8 values)</option>
-				</select>
-			</div>
-		</fieldset>
-
-		<fieldset class="fieldset1">
-			<legend>Miscellaneous</legend>
-			Title:
-			<input name="title" value="Test on Cu <011>" type="text" class="string">
-			<div>
-				kV =
-				<input name="kv" value="200.0" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
-				,
-				<span class="kvopt"></span>
-			</div>
-			<div>
-				Zone Axis:
-				<input name="indz[]" value="0" type="text" pattern="-?[0-9]*" class="int">
-				<input name="indz[]" value="0" type="text" pattern="-?[0-9]*" class="int">
-				<input name="indz[]" value="1" type="text" pattern="-?[0-9]*" class="int">
-			</div>
-			<div>
-				Diffraction resolution X =
-				<input name="meshx" value="16" type="text" pattern="-?[0-9]*" class="int">
-				, Y =
-				<input name="meshy" value="16" type="text" pattern="-?[0-9]*" class="int">
-			</div>
-			<div class="pfield">
-				Dilation =
-				<input name="dilation" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
-				,
-				<span class="maskdilation"></span>
-			</div>
-		</fieldset>
-
-		<fieldset class="fieldset1">
-			<legend>Fresnel propagators</legend>
-			<div class="pfield">
-				Number of propagators =
-				<b id="npr_disp">0</b>
-				-
-				<input type="button" value="Add propagator" onclick="Add_pr()">
-				:
-			</div>
-			<div id="pr_list"></div>
-		</fieldset>
-
-		<fieldset class="fieldset1">
-			<legend>Atom types</legend>
-			<div class="pfield">
-				IAM file path:
-				<input name="iam_path" type="text" class="string">
-			</div>
-			<div class="pfield">
-				Phenomenological absorption -
-				<input name="absorb" id="absorb_opt" type="checkbox" onchange="absorb_opt_changed()">
-			</div>
-			<hr>
-			<div class="pfield">
-				Number of atom types =
-				<b id="ntype_disp">0</b>
-				-
-				<input type="button" value="Add atom type" onclick="VarToForm_atom_type(ntype + 1)">
-				:
-			</div>
-			<div id="atom_type_list"></div>
-			<hr>
-			<div class="pfield">
-				Maximum of
-				<i>s</i>
-				included =
-				<input name="dsap" value="5.0" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
-				&#8491;<sup>-1</sup> ; maximum of
-				<i>s</i>
-				listed in logs =
-				<input name="dsmax" value="1.0" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
-				&#8491;<sup>-1</sup>
-			</div>
-		</fieldset>
-
-		<fieldset class="fieldset1" id="fieldset_region">
-			<legend>Regions</legend>
-			<div class="pfield">
-				Number of regions =
-				<input type="text" name="nregions" pattern="-?[0-9]*" class="int"
-					onchange="Change_input()">
-				:
-			</div>
-			<div id="region_list"></div>
-		</fieldset>
-
-		<fieldset class="fieldset1">
-			<legend>Pattern I/O</legend>
-			<div>
-				Pattern-matching/One-off simulation:
-				<select name="input_opt" onchange="Change_input()">
-					<option value="0">Pattern-matching</option>
-					<option value="out">One-off simulation without input pattern</option>
-					<option value="sim">Generate synthetic input pattern file</option>
-				</select>
-			</div>
-			<div id="input_dim">
-				Beam disc width =
-				<input type="text" name="width" pattern="-?[0-9]*" class="int">
-				, height =
-				<input type="text" name="height" pattern="-?[0-9]*" class="int">
-				, differentiation length =
-				<input type="text" name="height" pattern="-?[0-9]*" class="int">
-			</div>
-			<div id="input_file">
-				Input pattern filename:
-				<input name="expint" type="text" class="string">
-			</div>
-			<div>
-				Output pattern filename:
-				<input name="bmname" type="text" class="string">
-			</div>
-			<hr>
-			<div>
-				Number of beams in pattern =
-				<input type="text" name="mbout" pattern="-?[0-9]*" class="int"
-					onchange="Change_input()">
-				:
-			</div>
-			<div id="bout_list"></div>
-			<hr>
-			<div>
-				Reference reflection vector 1:
-				<i>h</i>
-				-
-				<input type="text" name="ay" pattern="-?[0-9]*" class="int">
-				<i>k</i>
-				-
-				<input type="text" name="bee" pattern="-?[0-9]*" class="int">
-				<i>l</i>
-				-
-				<input type="text" name="nothing" pattern="-?[0-9]*" class="int">
-			</div>
-			<div>
-				Reference reflection vector 2:
-				<i>h</i>
-				-
-				<input type="text" name="cee" pattern="-?[0-9]*" class="int">
-				<i>k</i>
-				-
-				<input type="text" name="dee" pattern="-?[0-9]*" class="int">
-				<i>l</i>
-				-
-				<input type="text" name="naught" pattern="-?[0-9]*" class="int">
-			</div>
-			<fieldset class="fieldset2" id="side_angle">
-				<legend class="legend2">Pattern coordinates</legend>
-				<div>
-					Point X =
-					<input name="cbx" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
-					, refine:
-					<input type="checkbox" name="maskt[]">
-					, Y =
-					<input name="cby" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
-					, refine:
-					<input type="checkbox" name="maskt[]">
-				</div>
-				<div>
-					Side =
-					<input name="cbx" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
-					, refine:
-					<input type="checkbox" name="maskt[]">
-					, angle =
-					<input name="cbx" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
-					, refine:
-					<input type="checkbox" name="maskt[]">
-				</div>
-			</fieldset>
-			<div>
-				Intensity normalisation =
-				<input name="iref" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
-			</div>
-		</fieldset>
-		<fieldset class="fieldset1">
-			<legend class="legend">Refinement settings</legend>
-			<div>
-				Optimisation method -
-				<select name="method">
-					<option value="PANA">Annealing parabola</option>
-					<option value="ANNE">Annealing</option>
-					<option value="PARA">Parabola</option>
-					<option value="SIMP">Downhill simplex (Amoeba)</option>
-					<option value="PAAN">Parabola then Annealing</option>
-					<option value="ANPA">Annealing then Parabolic</option>
-					<option value="SIPA">Simplex then Parabola</option>
-					<option value="PASI">Parabola then Simplex</option>
-					<option value="SIAN">Simplex then Annealing</option>
-					<option value="ANSI">Annealing then Simplex</option>
-				</select>
-				, refine parameters in random order
-				<input type="checkbox" name="paraopt">
-			</div>
-			<div>
-				Overall refinement loops =
-				<input type="text" name="loops" pattern="-?[0-9]*" class="int">
-				, maximum cycles in a loop =
-				<input type="text" name="maxcycles" pattern="-?[0-9]*" class="int">
-				, maximum iterations in a loop =
-				<input type="text" name="maxiters" pattern="-?[0-9]*" class="int">
-			</div>
-			<div>
-				Target uncertainty =
-				<input name="minunce" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
-				, upper temperature =
-				<input name="maxtemp" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
-				, lower temperature =
-				<input name="mintemp" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
-				, cooling rate =
-				<input name="coolrate" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
-			</div>
-			<div>
-				Number of FFT methods =
-				<input type="text" name="nhyb" pattern="-?[0-9]*" class="int"
-					onchange="Change_input()">
-			</div>
-			<div id="fft_list"></div>
-		</fieldset>
-	</form>
-	<!-- ***************** End of form *************** -->
-
-
-
-	<!-- ***************** Start snippet templates *************** -->
-	<span id="refine_tpl">
-		refine -
-		<input type="checkbox" onchange="Change_refine(this)">
-		<span class="unce" style="display: none">
-			uncertainty =
-			<input type="text" pattern="-?[0-9]*.?[0-9]*" name="unce[]">
-		</span>
-	</span>
-
-	<div class="pfield" id="pr_tpl" style="display: none">
-		<input type="button" value="Del" onclick="DelParent(this, Del_pr)">
-		<b>Template</b>
-		. a =
-		<input type="text" pattern="-?[0-9]*.?[0-9]*" name="cell2d_a[]" class="dble">
-		&#8491;, b =
-		<input type="text" pattern="-?[0-9]*.?[0-9]*" name="cell2d_b[]" class="dble">
-		&#8491;, &gamma; =
-		<input type="text" pattern="-?[0-9]*.?[0-9]*" name="gammarreal[]" class="dble">
-		&deg;, &Delta;z =
-		<input type="text" pattern="-?[0-9]*.?[0-9]*" name="deltaz[]" class="dble">
-		&#8491;, X shift =
-		<input type="text" pattern="-?[0-9]*.?[0-9]*" name="xshift[]" class="dble">
-		&#8491;, Y shift =
-		<input type="text" pattern="-?[0-9]*.?[0-9]*" name="yshift[]" class="dble">
-		&#8491;;
-	</div>
-
-	<fieldset class="fieldset2" id="atom_type_tpl" style="display: none">
-		<legend>
-			Type
-			<b>Template</b>
-			<input type="button" value="Del"
-				onclick="DelParent(this, VarToForm_atom_type, ntype - 1)">
-		</legend>
-		<div>
-			Name =
-			<input type="text" name="label[]" maxlength="2" size="2">
-			, atomic number =
-			<input type="text" name="zt[]" pattern="-?[0-9]*" class="int">
-		</div>
-		<div>
-			Debye-Waller factor =
-			<input type="text" pattern="-?[0-9]*.?[0-9]*" name="dw[]" class="dble">
-			, refine:
-			<input type="checkbox" name="maskdw[]">
-		</div>
-		<div class="absorption">
-			Absorption: A =
-			<input type="text" pattern="-?[0-9]*.?[0-9]*" name="inela[]" class="dble">
-			, refine:
-			<input type="checkbox" name="maskinela[]">
-			; B =
-			<input type="text" pattern="-?[0-9]*.?[0-9]*" name="inelb[]" class="dble">
-			, refine:
-			<input type="checkbox" name="maskinelb[]">
-			, C =
-			<input type="text" pattern="-?[0-9]*.?[0-9]*" name="inelc[]" class="dble">
-			, refine:
-			<select name="maskinelc[]">
-				<option value=0>No</option>
-				<option value=1>Yes</option>
-				<option value=-1>= B</option>
-			</select>
-		</div>
-	</fieldset>
-
-	<fieldset class="fieldset2" id="region_tpl" style="display: none">
-		<legend>
-			Region
-			<b class="region_no">Template</b>
-		</legend>
-		<div>
-			Thickness =
-			<input type="text" pattern="-?[0-9]*.?[0-9]*" name="depth[]" class='dble'>
-			, refine:
-			<input type="checkbox" name="tmask[]">
-		</div>
-		<div style="padding: 0px; margin: 0px; clear: both; display: table">
-			<div style="float: left">
-				Vacancy concentration -
-				<select name="concflag[]" onchange="vacancy_option_changed(this)">
-					<option value=0>Constant</option>
-					<option value=1>Increases with thickness</option>
-					<option value=2>Decreases with thickness</option>
-				</select>
-				:
-			</div>
-			<div class="vacancy_constant" style="float: left">
-				C<sub>V</sub> =
-				<input type="text" pattern="-?[0-9]*.?[0-9]*" name="constvacconc[]" class="dble">
-				, refine:
-				<input type="checkbox" name="maskconstvacconc[]">
-			</div>
-			<div class="vacancy_equation" style="display: none; float: left">
-				C<sub>O</sub> =
-				<input type="text" pattern="-?[0-9]*.?[0-9]*" name="va[]" class="dble">
-				, refine:
-				<input type="checkbox" name="maskva[]">
-				; C<sub>V</sub> =
-				<input type="text" pattern="-?[0-9]*.?[0-9]*" name="vb[]" class="dble">
-				, refine:
-				<input type="checkbox" name="maskvb[]">
-			</div>
-		</div>
-		<div>
-			Free surface -
-			<select name="fstype[]">
-				<option value=0>No free surface</option>
-				<option value=1>Botton free surface</option>
-				<option value=2>Top free surface</option>
-			</select>
-			: A =
-			<input name="binda[]" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
-			, B =
-			<input name="binda[]" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
-			, C =
-			<input name="binda[]" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
-		</div>
-		<hr>
-		<div class="pfield">
-			Number of slices =
-			<input type="text" name="rnsl[]" pattern="-?[0-9]*" class="int"
-				onchange="Change_input()">
-			:
-		</div>
-		<div class="pg_list"></div>
-		<div class="3_points">
-			<hr>
-			<fieldset class="fieldset3">
-				<legend class="legend3">Pattern coordinates</legend>
-				<div>
-					Point 1 X =
-					<input name="a1[]" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
-					, refine -
-					<input type="checkbox" name="maskta1[]">
-					, 1 Y =
-					<input name="a2[]" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
-					, refine -
-					<input type="checkbox" name="maskta2[]">
-				</div>
-				<div>
-					Point 2 X =
-					<input name="b1[]" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
-					, refine -
-					<input type="checkbox" name="masktb1[]">
-					, 2 Y =
-					<input name="b2[]" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
-					, refine -
-					<input type="checkbox" name="masktb2[]">
-				</div>
-				<div>
-					Point 3 X =
-					<input name="c1[]" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
-					, refine -
-					<input type="checkbox" name="masktc1[]">
-					, 3 Y =
-					<input name="c2[]" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
-					, refine -
-					<input type="checkbox" name="masktc2[]">
-				</div>
-				<div class="4_points">
-					Point 4 X =
-					<input name="d1[]" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
-					, refine -
-					<input type="checkbox" name="masktd1[]">
-					, 4 Y =
-					<input name="d2[]" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
-					, refine -
-					<input type="checkbox" name="masktd2[]">
-				</div>
-			</fieldset>
-		</div>
-		<div>
-			<hr>
-			<div>
-				Symmetry -
-				<select name="symopt[]">
-					<option value="NONE">None</option>
-					<option value="INVE">Inversion/2-fold rotation</option>
-					<option value="RECT">Rectangle/2mm</option>
-					<option value="SQUA">Square/4mm</option>
-					<option value="HEXA">Hexagon/6mm or 3m</option>
-				</select>
-			</div>
-			<div>
-				Number of refining structure factors =
-				<input type="text" name="nrf[]" pattern="-?[0-9]*" class="int"
-					onchange="Change_input()">
-				:
-			</div>
-			<div class="sf_list"></div>
-		</div>
-	</fieldset>
-
-	<fieldset class="fieldset3" id="pg_tpl" style="display: none">
-		<legend>
-			Slice
-			<b class="pg_no">Template</b>
-		</legend>
-		Number of atoms in this slice =
-		<input type="text" name="nball[]" pattern="-?[0-9]*" class="int"
-			onchange="Change_input()">
-		; this slice is
-		<select name="rtype[]">
-			<option value="S">Solid</option>
-			<option value="G">Gas</option>
-		</select>
-		; propagator for this slice:
-		<input type="text" name="slpr[]" pattern="-?[0-9]*" class="int">
-		<div class="ball_list"></div>
-	</fieldset>
-
-	<div id="ball_tpl" style="display: none">
-		<hr>
-		<b>Atom</b>
-		<b class="ball_no">Template</b>
-		: Atom type -
-		<input type="text" name="itype[]" pattern="-?[0-9]*" class="int">
-		; Position X =
-		<input name="xpsx[]" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
-		- refine
-		<input type="checkbox" name="maskxpsx[]">
-		, Y =
-		<input name="xpsy[]" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
-		- refine
-		<input type="checkbox" name="maskxpsy[]">
-		; Occupancy =
-		<input name="occ[]" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
-	</div>
-
-	<div id="bout_tpl" style="display: none">
-		<b>Beam</b>
-		<b class="beam_no">Template</b>
-		:
-		<i>h</i>
-		-
-		<input type="text" name="hin[]" pattern="-?[0-9]*" class="int">
-		,
-		<i>k</i>
-		-
-		<input type="text" name="kin[]" pattern="-?[0-9]*" class="int">
-	</div>
-
-	<div id="sf_tpl" style="display: none">
-		<b>Strcuture Factor</b>
-		<b class="sf_no">Template</b>
-		:
-		<i>h</i>
-		-
-		<input type="text" name="h[]" pattern="-?[0-9]*" class="int">
-		,
-		<i>k</i>
-		-
-		<input type="text" name="k[]" pattern="-?[0-9]*" class="int">
-		, ratio to IAM =
-		<input name="sffac[]" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
-		- refine
-		<input type="checkbox" name="masksf[]">
-		, absorption =
-		<input name="absffac[]" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
-		- refine
-		<input type="checkbox" name="maskabsf[]">
-	</div>
-
-	<div id="fft_tpl" style="display: none">
-		<b>FFT Method</b>
-		<b class="fft_no">Template</b>
-		:
-		<select name="msp_meth[]" onchange="Change_input()">
-			<option value="fftsg">CPU FFTSG</option>
-			<option value="fftw">CPU FFTW</option>
-			<option value="clfft">GPU OpenCL</option>
-			<option value="cufft">GPU CUDA</option>
-		</select>
-		<span class="fftw" style="display: none">, amount of CPU cores =</span>
-		<span class="opencl" style="display: none">, OpenCL device No. =</span>
-		<span class="cuda" style="display: none">, CUDA device No. =</span>
-		<input type="text" name="msp_dev[]" pattern="-?[0-9]*" class="int" style="display: none">
-		<span class="gpu_opt" style="display: none">
-			, split jobs by ("0" for auto)
-			<input type="text" name="msp_splt[]" pattern="-?[0-9]*" class="int">
-		</span>
-		, weight of job assignment =
-		<input name="msp_ratio[]" type="text" pattern="-?[0-9]*.?[0-9]*" class="dble">
-	</div>
-
-	<input type="submit" value="Output" onclick="submit()">
 </body>
-
-<script>
-	VarToForm();
-	FormToVar();
-	VarToForm();
-</script>
 </html>
