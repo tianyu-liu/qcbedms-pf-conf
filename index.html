@@ -9,12 +9,13 @@ div {
 }
 
 hrml, body, .box, .ctn, .dw_var_ctn, input, select, #left_panel,
-	#right_panel, #atom_type_list, #region_list {
+	#right_panel, #fmt, #form, #atom_type_list, #region_list, #toc,
+	#toc_ttl, #txt, #txt_ttl {
 	margin: 0;
 	padding: 0;
 }
 
-html, body {
+html, body, #right_panel {
 	height: 100%;
 }
 
@@ -31,10 +32,6 @@ body {
 	padding: 0.2rem 1rem;
 }
 
-.fmt {
-	margin: 0 .5rem;
-}
-
 .footer {
 	text-align: center;
 	flex: 0;
@@ -42,7 +39,7 @@ body {
 	padding: 0.4rem;
 }
 
-.footerspan {
+.footer span {
 	vertical-align: middle;
 	padding: 0.3rem .5rem;
 	margin: 0 .1rem;
@@ -53,11 +50,11 @@ body {
 	vertical-align: middle;
 	border-radius: .5rem;
 	padding: 0.1rem .3rem;
-	margin: 0;
 	font-weight: bold;
+	cursor: pointer;
 }
 
-.content {
+.main {
 	margin: 0;
 	padding: 0.1rem;
 	border: 1px solid white;
@@ -73,25 +70,105 @@ body {
 	border: 0.3rem solid PowderBlue;
 }
 
+#form, #fmt {
+	overflow: auto;
+	width: 100%;
+}
+
 #right_panel {
 	width: 50%;
 	overflow: auto;
-	border: 0.3rem solid Pink;
-	flex-direction: row;
+	flex-direction: column;
+	display: flex;
 }
 
 #txt {
-	margin: 0;
+	flex: 1;
 	padding: .5rem;
 	box-sizing: border-box;
-	height: 99%;
+	height: 100%;
 	width: 100%;
 	white-space: pre;
 	resize: none;
+	border: 0.3rem solid Pink;
+	border-top: 0;
+}
+
+#txt_ttl {
+	background: Pink;
+}
+
+#form_ttl, #txt_ttl, #toc_ttl {
+	padding: .3rem;
+	text-align: center;
+	font-size: 1.4rem;
+	flex: 0;
+	font-weight: bold;
+	cursor: pointer;
+	position: relative;
+}
+
+#form_ttl {
+	padding-top: 0rem;
+	background: PowderBlue;
+}
+
+#toc {
+	min-height: 0;
+	flex: 1;
+	height: 100%;
+	width: 100%;
+	padding: .5rem;
+	white-space: none;
+	overflow: auto;
+	box-sizing: border-box;
+	border: 0.3rem solid PaleGreen;
+	border-top: 0;
+}
+
+#toc_ttl {
+	background: PaleGreen;
+}
+
+#toc a {
+	padding: .1rem 0;
+	color: rgb(0, 0, 0);
+	display: block;
+	text-decoration: none;
+	font-size: 1.2rem;
+	font-weight: bold;
+}
+
+#toc .a1 {
+	margin-left: 1rem;
+	font-weight: normal;
+	font-size: 1.2rem;
+}
+
+#toc .a2 {
+	margin-left: 2rem;
+	font-size: 1rem;
+}
+
+#toc .a3 {
+	margin-left: 3rem;
+	font-weight: normal;
+	font-size: 1rem;
 }
 
 legend {
 	font-weight: bold;
+}
+
+.fieldset0 {
+	border: 5px solid PowderBlue;
+	margin: 0rem .5rem;
+	padding: .3rem .5rem;
+}
+
+.fieldset0 legend {
+	margin: 0 auto;
+	font-size: 1.2rem;
 }
 
 .fieldset1 {
@@ -101,17 +178,17 @@ legend {
 }
 
 .fieldset1 legend {
-	font-size: 14pt;
+	font-size: 1.2rem;
 }
 
 .fieldset2 {
-	border: 2px solid;
+	border: 3px solid;
 	margin: 1rem 0;
 	padding: 0 .5rem;
 }
 
 .fieldset2 legend {
-	font-size: 12pt;
+	font-size: 1.1rem;
 }
 
 .fieldset3 {
@@ -120,8 +197,9 @@ legend {
 	padding: 0 .5rem;
 }
 
-.filedset3 legend {
-	font-size: 11pt;
+.fieldset3 legend {
+	font-weight: normal;
+	font-size: 1.1rem;
 }
 
 .pbox, .absorption {
@@ -150,7 +228,6 @@ legend {
 .n {
 	width: 2rem;
 	background-color: Gold;
-	/* 	color: white; */
 }
 
 .string {
@@ -160,7 +237,7 @@ legend {
 }
 
 .int {
-	width: 50px;
+	width: 2rem;
 	background-color: AliceBlue;
 }
 
@@ -194,35 +271,42 @@ legend {
 
 
 <body>
-	<div class="header" id="fmt">
-		<span class="fmt">
-			<b>Program format:</b>
-			<select name="prog" onchange="Refresh()">
-				<option value="qcbedms">QCBEDMS</option>
-				<option value="qcbedms-pf">QCBEDMS-PF</option>
-			</select>
-		</span>
-		<span class="fmt">
-			<b> Coordinates format:</b>
-			<select name="coord_fmt" onchange="Refresh()">
-				<option value="side_angle">Side + angle (4 values)</option>
-				<option value="3_points">3 points (6 values)</option>
-				<option value="4_points">4 points (8 values)</option>
-			</select>
-		</span>
-		<span class="fmt">
-			<b> Debye-Waller factor format:</b>
-			<select name="dw_fmt" onchange="Refresh()">
-				<option value="unique">Unique to atom type</option>
-				<option value="various">Various to different regions</option>
-			</select>
-		</span>
-	</div>
-
-	<div class="content">
+	<div class="main">
 		<div id="left_panel">
+			<div id="form_ttl">Form</div>
+			<form id="fmt">
+				<fieldset class="fieldset0">
+					<legend>Formats</legend>
+					<span>
+						Program:
+						<select name="prog" onchange="Refresh()">
+							<option value="qcbedms">QCBEDMS</option>
+							<option value="qcbedms-pf">QCBEDMS-PF</option>
+						</select>
+						,
+					</span>
+					<span>
+						pattern coordinates:
+						<select name="coord_fmt" onchange="Refresh()" style="width: 5rem">
+							<option value="side_angle">Side + angle (4 values)</option>
+							<option value="3_points">3 points (6 values)</option>
+							<option value="4_points">4 points (8 values)</option>
+						</select>
+						,
+					</span>
+					<span>
+						Debye-Waller factor:
+						<select name="dw_fmt" onchange="Refresh()" style="width: 5rem">
+							<option value="unique">Unique to atom type</option>
+							<option value="various">Various to different regions</option>
+						</select>
+					</span>
+				</fieldset>
+			</form>
+
+
 			<form id="form">
-				<fieldset class="fieldset1">
+				<fieldset class="fieldset1" id="misc">
 					<legend>Miscellaneous</legend>
 					<div style="display: flex; flex-flow: row">
 						<b>Title:</b>
@@ -267,7 +351,7 @@ legend {
 					</div>
 				</fieldset>
 
-				<fieldset class="fieldset1">
+				<fieldset class="fieldset1" id="propagator">
 					<legend>
 						Fresnel Propagators:
 						<input name="npr" type="number" class="n" onchange="Refresh()">
@@ -277,7 +361,7 @@ legend {
 					<div id="pr_list"></div>
 				</fieldset>
 
-				<fieldset class="fieldset1">
+				<fieldset class="fieldset1" id="atom_type">
 					<legend>
 						Atom Types:
 						<input name="ntype" type="number" class="n" onchange="Refresh()">
@@ -290,7 +374,7 @@ legend {
 					<div id="atom_type_list"></div>
 				</fieldset>
 
-				<fieldset class="fieldset1" id="fieldset_region">
+				<fieldset class="fieldset1" id="region">
 					<legend>
 						Specimen Structure:
 						<input name="nregions" type="number" class="n" onchange="Refresh()">
@@ -299,7 +383,7 @@ legend {
 					<div id="region_list"></div>
 				</fieldset>
 
-				<fieldset class="fieldset1">
+				<fieldset class="fieldset1" id="pattern">
 					<legend>Pattern I/O</legend>
 					<div>
 						Pattern-matching/One-off simulation:
@@ -386,8 +470,8 @@ legend {
 					</div>
 				</fieldset>
 
-				<fieldset class="fieldset1">
-					<legend class="legend">Refinement settings</legend>
+				<fieldset class="fieldset1" id="refinement">
+					<legend class="legend">Refinement Settings</legend>
 					<div>
 						<b>Minimisation:</b> algorithm -
 						<select name="method">
@@ -435,29 +519,46 @@ legend {
 					<div id="pll_list"></div>
 				</fieldset>
 			</form>
+			<!-- ***************** End of form *************** -->
 		</div>
-		<!-- ***************** End of form *************** -->
 
 
 		<div id="right_panel">
+			<div id="toc_ttl" onclick="Toggle_TOC()">Contents</div>
+			<div id="toc" style="display: none">
+				<a href="#misc">1. Miscellaneous</a>
+				<a href="#propagator">2. Propagators</a>
+				<a href="#atom_type">3. Atom Types</a>
+				<a href="#region">4. Specimen Structure</a>
+				<div id="toc_region_list"></div>
+				<a href="#pattern">5. Pattern I/O</a>
+				<a href="#refinement">6. Refinement</a>
+				<div id="toc_refinement_list" style="margin-left: 1rem"></div>
+			</div>
+
+			<div id="txt_ttl" onclick="Toggle_TOC()">
+				<input type="button" class="button" value="Form &#9658; Text" onclick="FormToText()"
+					style="background: PowderBlue; position: absolute; left: 1rem">
+				<span>Text File</span>
+				<input type="button" class="button" value="Form &#9668; Text" onclick="TextToForm()"
+					style="background: Pink; position: absolute; right: 1rem">
+			</div>
 			<textarea id="txt"></textarea>
 		</div>
 	</div>
+
+
 	<div class="footer">
-		<span class="footerspan">
-			<input type="button" class="button" style="background: PowderBlue" value="Form &#9658; Text"
-				onclick="FormToText()">
-		</span>
-		<span class="footerspan">
+		<span>
 			<input type="button" class="button" style="background: white" value="Refresh Form"
 				onclick="Refresh()">
 		</span>
-		<span class="footerspan" style="background: white; border: 1px solid gray">
+		<span style="background: white; border: 1px solid gray">
 			<b>Panels divider:</b>
 			<input type="range" style="width: 10rem" class="button" min="0" max="100" value="50" id="divider"
 				oninput="Change_Divider()">
 		</span>
-		<span class="footerspan">
+		<span>
 			<input type="button" style="background: white" class="button" value="Load Template"
 				onclick="LoadF7Tpl()">
 			<select name="f7_tpl">
@@ -466,10 +567,6 @@ legend {
 				<option value="al_qcbedms_side-angle_dw-var_tpl">Aluminium (QCBEDMS)</option>
 				<option value="al_void_qcbedms_side-angle_dw-var_tpl">Aluminium void (QCBEDMS)</option>
 			</select>
-		</span>
-		<span class="footerspan">
-			<input type="button" class="button" style="background: Pink" value="Form &#9668; Text"
-				onclick="TextToForm()" style="">
 		</span>
 	</div>
 
@@ -689,7 +786,7 @@ legend {
 
 		<fieldset class="fieldset3" id="pg_tpl">
 			<legend>
-				<b>Slice Template:</b>
+				<i><b>Slice Template:</b></i>
 				<input name="nball[]" type="number" class="n" onchange="Refresh()">
 				atoms, state -
 				<select name="rtype[]">
@@ -733,20 +830,19 @@ legend {
 			<span class="refinedw_var[]"></span>
 		</div>
 
-		<div id="sf_tpl" class="pbox">
-			<div class="plabel">
+		<div id="sf_tpl">
+			<div>
 				<b class="sf_no">Template</b> H -
 				<input type="text" name="sfh[]" pattern="-?[0-9]*" class="int">
 				, K -
 				<input type="text" name="sfk[]" pattern="-?[0-9]*" class="int">
 				:
 			</div>
-			<div class="plist">
+			<div class="list">
 				<i>rf<sub>Real</sub></i> =
 				<input name="sffac[]" type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="dble">
 				<span class="refinesffac[]"></span>
-				<br />
-				<i>rf<sub>Imag</sub></i> =
+				, <i>rf<sub>Imag</sub></i> =
 				<input name="absfac[]" type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="dble">
 				<span class="refineabsfac[]"></span>
 			</div>
@@ -1143,13 +1239,23 @@ YN
 		e.querySelector('[class="unce"]').name = "unce" + n;
 	}
 	
+	function Toggle_TOC() {
+		var s = document.getElementById("toc").style;
+		var t = document.getElementById("txt").style;
+		if (s.display == "none") {
+			s.display = "", t.display = "none";
+		} else {
+			s.display = "none", t.display = "";
+		}
+	}
+	
 	function Change_Divider() {
-		var d = document.getElementById("divider").value;
+		var d = document.getElementById("divider");
 		var l = document.getElementById("left_panel");
 		var r = document.getElementById("right_panel");
 		
-		l.style.width = d + "%";
-		r.style.width = (100 - d) + "%";
+		l.style.width = d.value + "%";
+		r.style.width = (100 - d.value) + "%";
 	}
 
 	function ChangeRefine(e) {
@@ -1259,12 +1365,19 @@ YN
 			list.removeChild(list.firstChild);
 
 		var is = 0, kb = 0, jsf = 0;
+		var toc_region = document.getElementById('toc_region_list');
+		while (toc_region.firstChild)
+			toc_region.removeChild(toc_region.firstChild);
 
 		for (var i = 0; i < nregions; i++) {
 			var regi = document.getElementById('region_tpl').cloneNode(true);
-			regi.removeAttribute("style");
-			regi.removeAttribute("id");
 			regi.querySelector('b').innerText = "Region " + (i + 1) +":";
+			regi.id = "region" + i;
+			var regi_toc = document.createElement('a');
+			regi_toc.href = "#region" + i, regi_toc.className = "a1";
+			regi_toc.text = "4." + (i + 1) + ". Region " + (i + 1) 
+				+ " (" + Math.round(depth[i]) + " \u212b)";
+			toc_region.appendChild(regi_toc);
 
 			var maskdepthi = regi.querySelector('[name="maskdepth[]"]');
 			if (nregions > 1 || prog == "qcbedms") {
@@ -1285,9 +1398,15 @@ YN
 			var pg_list = regi.querySelector('[class="pg_list"]');
 
 			for (var j = 0; j < rnsl[i]; j++) {
+				var jid = "pg" + is;
 				var pgj = document.getElementById('pg_tpl').cloneNode(true);
-				pgj.removeAttribute("id");
-				pgj.querySelector('b').innerText = "Slice #" + (j + 1) + ":";
+				pgj.querySelector('b').innerText = "Slice T. #" + (is + 1) + ":";
+				pgj.id = jid;
+				var pgj_toc = document.createElement('a');
+				pgj_toc.href = "#" + jid, pgj_toc.className = "a2";
+				pgj_toc.text = "Slice T. #" + (is + 1) 
+					+ ": \u0394z = " + deltaz[is] + " \u212b (Propagator #" + slpr[is] + ")";
+				toc_region.appendChild(pgj_toc);
 				
 				for (var k = 0; k < npr; k++) {
 					var o = document.createElement("option");
@@ -1305,20 +1424,26 @@ YN
 				var ball_list = pgj.querySelector('[class="ball_list"]');
 
 				for (var k = 0; k < nball[is]; k++) {
-					var iball = document.getElementById('ball_tpl').cloneNode(true);
-					iball.removeAttribute("id");
-					iball.querySelector('b').innerText = "Atom " + (k + 1) + ":";
+					var kid = "ball" + is + "." + k;
+					var kball = document.getElementById('ball_tpl').cloneNode(true);
+					kball.id = kid;
+					kball.querySelector('b').innerText = "Atom " + (k + 1) + ":";
+					var kball_toc = document.createElement('a');
+					kball_toc.href = "#" + kid, kball_toc.className = "a3";
+					kball_toc.text = label[itype[kb] - 1] 
+						+ " at ( " + xpsx[kb] + " , " + xpsy[kb] + " ), " + Number(occ[kb]) * 100 + "%";
+					toc_region.appendChild(kball_toc);
 					
 					for (var l = 0; l < ntype; l++) {
 						var o = document.createElement("option");
 						o.value = l + 1, o.text = (l + 1) + ". " + label[l];
-						iball.querySelector('[name="itype[]"]').add(o);
+						kball.querySelector('[name="itype[]"]').add(o);
 					}
 
-					ReplaceRefineSpan(iball, "xpsx\[\]", 0, 1);
-					ReplaceRefineSpan(iball, "xpsy\[\]", 0, 1);
+					ReplaceRefineSpan(kball, "xpsx\[\]", 0, 1);
+					ReplaceRefineSpan(kball, "xpsy\[\]", 0, 1);
 
-					ball_list.appendChild(iball);
+					ball_list.appendChild(kball);
 					
 					if (k != nball[is] - 1) {
 						var hr = document.createElement("hr");
@@ -1451,6 +1576,13 @@ YN
 		var list = document.getElementById('pll_list');
 		while (list.firstChild)
 			list.removeChild(list.firstChild);
+		
+		var toc_ref = document.getElementById('toc_refinement_list');
+		while (toc_ref.firstChild)
+			toc_ref.removeChild(toc_ref.firstChild);
+		var div = document.createElement('div');
+		div.innerHTML = rU + " parameters being refined";
+		toc_ref.appendChild(div);
 
 		if (prog == "qcbedms-pf") 
 			hM = 0, FormParallel(msp_opt1, msp_opt2, list);
@@ -1680,7 +1812,7 @@ YN
 			if (prog == "qcbedms-pf")
 	 			[nball[i], rtype[i], slpr[i]] = t[tl++].match(/\S+/g) || [];
 			else
-	 			[nball[i], rtype[i]] = t[tl++].match(/\S+/g) || [];
+	 			[nball[i], rtype[i]] = t[tl++].match(/\S+/g) || [], slpr[i] = i + 1;
 			
 	 		for (var j = 0, k = i * nball[i]; j < nball[i]; j++, k++)
 	 	 		[itype[k], xpsx[k], maskxpsx[k], xpsy[k], maskxpsy[k], occ[k]] = t[tl++].match(/\S+/g) || [];
@@ -2065,6 +2197,8 @@ YN
 	
 	VarToForm();
 	LoadF7Tpl();
+	Change_Divider();
+	Toggle_TOC();
 </script>
 
 </body>
