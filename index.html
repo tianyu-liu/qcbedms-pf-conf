@@ -1,5 +1,6 @@
 <!DOCTYPE html>
 <html>
+
 <head>
 <meta charset="UTF-8">
 <title>QCBEDMS-PF FOR007.DAT generator</title>
@@ -47,11 +48,12 @@ body {
 }
 
 .button {
-	vertical-align: middle;
+	border: 2px outset;
 	border-radius: .5rem;
 	padding: 0.1rem .3rem;
 	font-weight: bold;
 	cursor: pointer;
+	vertical-align: middle;
 }
 
 .main {
@@ -99,13 +101,12 @@ body {
 }
 
 #form_ttl, #txt_ttl, #toc_ttl {
-	padding: .3rem;
 	text-align: center;
 	font-size: 1.4rem;
 	flex: 0;
 	font-weight: bold;
-	cursor: pointer;
 	position: relative;
+	padding: .3rem;
 }
 
 #form_ttl {
@@ -202,7 +203,7 @@ legend {
 	font-size: 1.1rem;
 }
 
-.pbox, .absorption {
+.pbox {
 	display: flex;
 	flex-direction: row;
 	padding: 3px 0;
@@ -223,6 +224,10 @@ legend {
 
 .list, .sf_list {
 	margin-left: 1rem;
+}
+
+.mono {
+	font-family: "Lucida Console", "monospace";
 }
 
 .n {
@@ -267,6 +272,8 @@ legend {
 	color: DarkGreen;
 }
 </style>
+
+
 </head>
 
 
@@ -277,30 +284,46 @@ legend {
 			<form id="fmt">
 				<fieldset class="fieldset0">
 					<legend>Formats</legend>
-					<span>
-						Program:
-						<select name="prog" onchange="Refresh()">
-							<option value="qcbedms">QCBEDMS</option>
-							<option value="qcbedms-pf">QCBEDMS-PF</option>
-						</select>
-						,
-					</span>
-					<span>
-						pattern coordinates:
-						<select name="coord_fmt" onchange="Refresh()" style="width: 5rem">
-							<option value="side_angle">Side + angle (4 values)</option>
-							<option value="3_points">3 points (6 values)</option>
-							<option value="4_points">4 points (8 values)</option>
-						</select>
-						,
-					</span>
-					<span>
-						Debye-Waller factor:
-						<select name="dw_fmt" onchange="Refresh()" style="width: 5rem">
-							<option value="unique">Unique to atom type</option>
-							<option value="various">Various to different regions</option>
-						</select>
-					</span>
+					<div>
+						<span>
+							Program:
+							<select name="prog" onchange="Refresh()">
+								<option value="qcbedms">QCBEDMS</option>
+								<option value="qcbedms-pf">QCBEDMS-PF</option>
+							</select>
+							.
+						</span>
+						<span>
+							Pattern coordinates:
+							<select name="coord_fmt" onchange="Refresh()">
+								<option value="side-angle">Side + angle (4 values)</option>
+								<option value="3-points">3 points (6 values)</option>
+								<option value="4-points">4 points (8 values)</option>
+							</select>
+							.
+						</span>
+					</div>
+					<div>
+						<span>
+							Absorptions:
+							<select name="abs_fmt" onchange="Refresh()">
+								<option value="2">2 coefficients</option>
+								<option value="3" selected>3 coefficients</option>
+								<option value="4">4 coefficients</option>
+								<option value="5">5 coefficients</option>
+								<option value="6">6 coefficients</option>
+							</select>
+							.
+						</span>
+						<span>
+							Debye-Waller factor:
+							<select name="dw_fmt" onchange="Refresh()">
+								<option value="unique">Unique to atom type</option>
+								<option value="various">Various to different regions</option>
+							</select>
+							.
+						</span>
+					</div>
 				</fieldset>
 			</form>
 
@@ -435,7 +458,7 @@ legend {
 						<i>l</i> -
 						<input type="text" name="naught" pattern="-?[0-9]*" class="int">
 					</div>
-					<div id="side_angle">
+					<div id="side-angle">
 						<hr>
 						<div>
 							<b>Pattern coordinates</b>
@@ -524,7 +547,9 @@ legend {
 
 
 		<div id="right_panel">
-			<div id="toc_ttl" onclick="Toggle_TOC()">Contents</div>
+			<div id="toc_ttl">
+				<span onclick="Toggle_TOC()" class="button">Summary</span>
+			</div>
 			<div id="toc" style="display: none">
 				<a href="#misc">1. Miscellaneous</a>
 				<a href="#propagator">2. Propagators</a>
@@ -536,16 +561,17 @@ legend {
 				<div id="toc_refinement_list" style="margin-left: 1rem"></div>
 			</div>
 
-			<div id="txt_ttl" onclick="Toggle_TOC()">
+			<div id="txt_ttl">
 				<input type="button" class="button" value="Form &#9658; Text" onclick="FormToText()"
-					style="background: PowderBlue; position: absolute; left: 1rem">
-				<span>Text File</span>
+					style="background: PowderBlue; position: absolute; left: 1rem; top: .5rem">
+				<span onclick="Toggle_TOC()" class="button">Text File</span>
 				<input type="button" class="button" value="Form &#9668; Text" onclick="TextToForm()"
-					style="background: Pink; position: absolute; right: 1rem">
+					style="background: Pink; position: absolute; right: 1rem; top: .5rem">
 			</div>
 			<textarea id="txt"></textarea>
 		</div>
 	</div>
+
 
 
 	<div class="footer">
@@ -553,7 +579,7 @@ legend {
 			<input type="button" class="button" style="background: white" value="Refresh Form"
 				onclick="Refresh()">
 		</span>
-		<span style="background: white; border: 1px solid gray">
+		<span>
 			<b>Panels divider:</b>
 			<input type="range" style="width: 10rem" class="button" min="0" max="100" value="50" id="divider"
 				oninput="Change_Divider()">
@@ -563,9 +589,11 @@ legend {
 				onclick="LoadF7Tpl()">
 			<select name="f7_tpl">
 				<!-- 				<option value="empty">Empty form</option> -->
-				<option value="cu_qcbedms-pf_side-angle_dw-var_tpl">Copper (QCBEDMS-PF)</option>
-				<option value="al_qcbedms_side-angle_dw-var_tpl">Aluminium (QCBEDMS)</option>
-				<option value="al_void_qcbedms_side-angle_dw-var_tpl">Aluminium void (QCBEDMS)</option>
+				<option value="cu_qcbedms-pf_side-angle_3-abs_dw-var_tpl">Copper (QCBEDMS-PF)</option>
+				<option value="al_qcbedms_side-angle_3-abs_dw-var_tpl">Aluminium (QCBEDMS)</option>
+				<option value="al_void_qcbedms_side-angle_3-abs_dw-var_tpl">Aluminium void (QCBEDMS)</option>
+				<option value="al_void_qcbedms_3-points_2-abs_dw-var_tpl">Aluminium void (QCBEDMS, 2
+					absorptions)</option>
 			</select>
 		</span>
 	</div>
@@ -575,54 +603,38 @@ legend {
 	<!-- ***************** Start snippet templates *************** -->
 	<div style="display: none">
 		<span id="refine_tpl">
-			-
 			<select onchange="ChangeRefine(this)" class="fixed">
 				<option>Fixed</option>
 				<option>Refine</option>
 			</select>
-			, &delta; =
+			&delta; =
 			<input type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="unce" disabled>
 		</span>
 
-		<div id="pr_tpl" class="pbox">
-			<div class="plabel">
+		<div id="pr_tpl">
+			<div>
 				<b class="propagator">Propagator #Template:</b>
 			</div>
-			<table class="plist" style="text-align: right">
-				<tr>
-					<td>a =</td>
-					<td>
-						<input type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" name="cell2d_a[]" class="dble">
-					</td>
-					<td>&#8491;,</td>
-					<td>&gamma; =</td>
-					<td>
-						<input type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" name="gammareal[]" class="dble">
-					</td>
-					<td>&deg;,</td>
-					<td>X shift =</td>
-					<td>
-						<input type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" name="xshift[]" class="dble">
-						&#8491;
-					</td>
-				</tr>
-				<tr>
-					<td>b =</td>
-					<td>
-						<input type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" name="cell2d_b[]" class="dble">
-					</td>
-					<td>&#8491;,</td>
-					<td>&Delta;z =</td>
-					<td>
-						<input type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" name="deltaz[]" class="dble">
-					</td>
-					<td>&#8491;,</td>
-					<td>Y shift =</td>
-					<td>
-						<input type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" name="yshift[]" class="dble">
-						&#8491;
-				</tr>
-			</table>
+			<div class="list">
+				<div>
+					a =
+					<input type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" name="cell2d_a[]" class="dble">
+					&#8491;, b =
+					<input type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" name="cell2d_b[]" class="dble">
+					&#8491;, &gamma; =
+					<input type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" name="gammareal[]" class="dble">
+					&deg;
+				</div>
+				<div>
+					&Delta;z =
+					<input type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" name="deltaz[]" class="dble">
+					&#8491;, X shift =
+					<input type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" name="xshift[]" class="dble">
+					&#8491;, Y shift =
+					<input type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" name="yshift[]" class="dble">
+					&#8491;
+				</div>
+			</div>
 		</div>
 
 		<fieldset class="fieldset2" id="atom_type_tpl">
@@ -638,32 +650,48 @@ legend {
 				<span class="refinedw_uni[]"></span>
 			</div>
 			<div class="absorption">
-				<div class="plabel">
-					<b>Absorptions:</b>
+				<div>
+					<b>Absorption coefficents:</b>
 				</div>
-				<div class="plist">
+				<div class="list mono">
 					<div>
 						A =
 						<input type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" name="inela[]" class="dble">
 						<span class="refineinela[]"></span>
-					</div>
-					<div>
-						B =
+						| B =
 						<input type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" name="inelb[]" class="dble">
 						<span class="refineinelb[]"></span>
 					</div>
 					<div>
-						C =
-						<input type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" name="inelc[]" class="dble">
-						-
-						<select name="maskinelc[]" onchange="Change_AbsorbC(this)">
-							<option value=-1>= B</option>
-							<option value=0>Fixed</option>
-							<option value=1>Refine</option>
-						</select>
-						, &delta; =
-						<input type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" name="unceinelc[]" disabled
-							class="unce">
+						<span class="abs_c">
+							C =
+							<input type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" name="inelc[]" class="dble">
+							<select name="maskinelc[]" onchange="Change_AbsorbC(this)">
+								<option value=-1>= B</option>
+								<option value=0>Fixed</option>
+								<option value=1>Refine</option>
+							</select>
+							&delta; =
+							<input type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" name="unceinelc[]" disabled
+								class="unce">
+						</span>
+						<span class="abs_d">
+							| D =
+							<input type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" name="ineld[]" class="dble">
+							<span class="refineineld[]"></span>
+						</span>
+					</div>
+					<div>
+						<span class="abs_e">
+							E =
+							<input type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" name="inele[]" class="dble">
+							<span class="refineinele[]"></span>
+						</span>
+						<span class="abs_f">
+							| F =
+							<input type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" name="inelf[]" class="dble">
+							<span class="refineinelf[]"></span>
+						</span>
 					</div>
 				</div>
 			</div>
@@ -730,7 +758,7 @@ legend {
 				<b>Debye-Waller factor:</b>
 				<div class="dw_var_list" style="margin-left: 1rem"></div>
 			</div>
-			<div class="3_points">
+			<div class="3-points">
 				<hr>
 				<div>
 					<b>Pattern Coordinates:</b>
@@ -759,7 +787,7 @@ legend {
 					<input name="tc2[]" type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="dble">
 					<span class="refinetc2[]"></span>
 				</div>
-				<div class="4_points">
+				<div class="4-points">
 					Point 4: X =
 					<input name="td1[]" type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="dble">
 					<span class="refinetd1[]"></span>
@@ -800,24 +828,20 @@ legend {
 			<div class="ball_list"></div>
 		</fieldset>
 
-		<div id="ball_tpl" class="pbox">
-			<div class="plabel">
+		<div id="ball_tpl">
+			<div>
 				<b>Atom Template:</b>
+				<span class="atom_type">Type #</span>
+				<select name="itype[]" class="atom_type"></select>
+				. Occupancy =
+				<input name="occ[]" type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="dble">
 			</div>
-			<div class="plist">
+			<div class="list">
 				<div>
-					<span class="atom_type">Type #</span>
-					<select name="itype[]" class="atom_type"></select>
-					. Occupancy =
-					<input name="occ[]" type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="dble">
-				</div>
-				<div>
-					Coordinate X =
+					X =
 					<input name="xpsx[]" type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="dble">
 					<span class="refinexpsx[]"></span>
-				</div>
-				<div>
-					Coordinate Y =
+					, Y =
 					<input name="xpsy[]" type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="dble">
 					<span class="refinexpsy[]"></span>
 				</div>
@@ -839,10 +863,10 @@ legend {
 				:
 			</div>
 			<div class="list">
-				<i>rf<sub>Real</sub></i> =
+				<i>rf<sub>R</sub></i> =
 				<input name="sffac[]" type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="dble">
 				<span class="refinesffac[]"></span>
-				, <i>rf<sub>Imag</sub></i> =
+				, <i>rf<sub>I</sub></i> =
 				<input name="absfac[]" type="text" pattern="-?[0-9]*.?[0-9]*[eE]?[+-]?[0-9]*" class="dble">
 				<span class="refineabsfac[]"></span>
 			</div>
@@ -903,7 +927,7 @@ legend {
 			</span>
 		</div>
 
-		<textarea id="cu_qcbedms-pf_side-angle_dw-var_tpl" style="display: none">
+		<textarea id="cu_qcbedms-pf_side-angle_3-abs_dw-var_tpl" style="display: none">
 # Comments must have '#' as the 1st character without any space ahead
 #↓ 1. Title/Label
 test on Pure Cu [110]
@@ -1010,7 +1034,7 @@ hybrid    2  1
 #
 </textarea>
 
-		<textarea id="al_qcbedms_side-angle_dw-var_tpl" style="display: none">
+		<textarea id="al_qcbedms_side-angle_3-abs_dw-var_tpl" style="display: none">
 test on Pure Aluminium [001] with homogeneous A and B slices
    160.0000000    0    0   0   1
    1  16  16
@@ -1026,7 +1050,7 @@ AL
   0
  0.0000000E+00  0
   0.50000000   0
-YES_ABSORPTION      
+YES_ABSORPTION
      0.0000000   0      1.0000000   1      1.0000000   1
      0.8600000
   0
@@ -1034,7 +1058,7 @@ YES_ABSORPTION
    2 S
   1   0.000000000000000    0   0.000000000000000    0   0.500000000000000
   1   0.500000000000000    0   0.500000000000000    0   0.500000000000000
-out.dat   
+out.dat
   9
     0    0
     1    1
@@ -1045,7 +1069,7 @@ out.dat
     0   -2
    -2    0
     0    2
-in.dat   
+in.dat
    1   1   0
    1  -1   0
     0.0     -1.0
@@ -1076,7 +1100,7 @@ PARA   1
      0.999   1.001
 </textarea>
 
-		<textarea id="al_void_qcbedms_side-angle_dw-var_tpl">
+		<textarea id="al_void_qcbedms_side-angle_3-abs_dw-var_tpl">
 test on Aluminium void [001]
   160.0  0  0  0  1
   5  16  16
@@ -1121,7 +1145,7 @@ AL
   1  0.0  0  0.0  0  1.0
   1  S
   1  0.5  0  0.5  0  1.0
-out.dat   
+out.dat
   9
   0  0
   1  1
@@ -1173,36 +1197,322 @@ YN
 0.99  1.01
 0.99  1.01
 </textarea>
+
+		<textarea id="al_void_qcbedms_3-points_2-abs_dw-var_tpl">
+Void 5A Jeol 2011 (year 2012)
+   158.9034002    1    0   0   1
+   25  32  32
+     2.8630754      2.8630754     90.0000000      1.0122500      0.0000000      0.0000000
+     2.8630754      2.8630754     90.0000000      1.0122500      0.0000000      0.0000000
+     2.8630754      2.8630754     90.0000000      1.0122500      0.0000000      0.0000000
+     2.8630754      2.8630754     90.0000000      1.0122500      0.0000000      0.0000000
+     2.8630754      2.8630754     90.0000000      1.0122500      0.0000000      0.0000000
+     2.8630754      2.8630754     90.0000000      1.0122500      0.0000000      0.0000000
+     2.8630754      2.8630754     90.0000000      1.0122500      0.0000000      0.0000000
+     2.8630754      2.8630754     90.0000000      1.0122500      0.0000000      0.0000000
+     2.8630754      2.8630754     90.0000000      1.0122500      0.0000000      0.0000000
+     2.8630754      2.8630754     90.0000000      1.0122500      0.0000000      0.0000000
+     2.8630754      2.8630754     90.0000000      1.0122500      0.0000000      0.0000000
+     2.8630754      2.8630754     90.0000000      1.0122500      0.0000000      0.0000000
+     2.8630754      2.8630754     90.0000000      1.0122500      0.0000000      0.0000000
+     2.8630754      2.8630754     90.0000000      1.0122500      0.0000000      0.0000000
+     2.8630754      2.8630754     90.0000000      1.0122500      0.0000000      0.0000000
+     2.8630754      2.8630754     90.0000000      1.0122500      0.0000000      0.0000000
+     2.8630754      2.8630754     90.0000000      1.0122500      0.0000000      0.0000000
+     2.8630754      2.8630754     90.0000000      1.0122500      0.0000000      0.0000000
+     2.8630754      2.8630754     90.0000000      1.0122500      0.0000000      0.0000000
+     2.8630754      2.8630754     90.0000000      1.0122500      0.0000000      0.0000000
+     2.8630754      2.8630754     90.0000000      1.0122500      0.0000000      0.0000000
+     2.8630754      2.8630754     90.0000000      1.0122500      0.0000000      0.0000000
+     2.8630754      2.8630754     90.0000000      1.0122500      0.0000000      0.0000000
+     2.8630754      2.8630754     90.0000000      1.0122500      0.0000000      0.0000000
+     2.8630754      2.8630754     90.0000000      1.0122500      0.0000000      0.0000000
+  1
+AL
+  13
+  5.00000
+  0.50000
+  7
+55.6738 0 55.6738 0 63.341 1 209.7770277   1    152.85 0 152.85 0 150.14 1
+  4 4 4 1 4 4 4
+  0
+ 0.0000000E+00  0
+  0
+ 0.0000000E+00  0
+  0
+ 0.0000000E+00  0
+  0
+ 0.0000000E+00  0
+  0
+ 0.0000000E+00  0
+  0
+ 0.0000000E+00  0
+  0
+ 0.0000000E+00  0
+  0.50000000   0
+YES_ABSORPTION
+     2.3932000   1      0.7187827   1
+     0.8600000
+  0
+  0  0.000000000  0.000000000  1.000000000
+     0.8600000
+  0
+  0  0.000000000  0.000000000  1.000000000
+     0.8600000
+  0
+  0  0.000000000  0.000000000  1.000000000
+     0.8600000
+  0
+  0  0.000000000  0.000000000  1.000000000
+     0.8600000
+  0
+  0  0.000000000  0.000000000  1.000000000
+     0.8600000
+  0
+  0  0.000000000  0.000000000  1.000000000
+     0.8600000
+  0
+  0  0.000000000  0.000000000  1.000000000
+   2 S
+  1   0.000000000000000    0   0.000000000000000    0   0.522646771000000
+  1   0.500000000000000    0   0.500000000000000    0   0.090601828000000
+   2 S
+  1   0.000000000000000    0   0.000000000000000    0   0.188834515000000
+  1   0.500000000000000    0   0.500000000000000    0   0.197916925000000
+   2 S
+  1   0.000000000000000    0   0.000000000000000    0   0.090601811000000
+  1   0.500000000000000    0   0.500000000000000    0   0.522646711000000
+   2 S
+  1   0.000000000000000    0   0.000000000000000    0   0.197916903000000
+  1   0.500000000000000    0   0.500000000000000    0   0.188834536000000
+   2 S
+  1   0.000000000000000    0   0.000000000000000    0   0.522646771000000
+  1   0.500000000000000    0   0.500000000000000    0   0.090601828000000
+   2 S
+  1   0.000000000000000    0   0.000000000000000    0   0.188834515000000
+  1   0.500000000000000    0   0.500000000000000    0   0.197916925000000
+   2 S
+  1   0.000000000000000    0   0.000000000000000    0   0.090601811000000
+  1   0.500000000000000    0   0.500000000000000    0   0.522646711000000
+   2 S
+  1   0.000000000000000    0   0.000000000000000    0   0.197916903000000
+  1   0.500000000000000    0   0.500000000000000    0   0.188834536000000
+   2 S
+  1   0.000000000000000    0   0.000000000000000    0   0.522646771000000
+  1   0.500000000000000    0   0.500000000000000    0   0.090601828000000
+   2 S
+  1   0.000000000000000    0   0.000000000000000    0   0.188834515000000
+  1   0.500000000000000    0   0.500000000000000    0   0.197916925000000
+   2 S
+  1   0.000000000000000    0   0.000000000000000    0   0.090601811000000
+  1   0.500000000000000    0   0.500000000000000    0   0.522646711000000
+   2 S
+  1   0.000000000000000    0   0.000000000000000    0   0.197916903000000
+  1   0.500000000000000    0   0.500000000000000    0   0.188834536000000
+   1 S
+  1   0.000000000000000    0   0.000000000000000    0   0.000000000000000
+   2 S
+  1   0.000000000000000    0   0.000000000000000    0   0.522646771000000
+  1   0.500000000000000    0   0.500000000000000    0   0.090601828000000
+   2 S
+  1   0.000000000000000    0   0.000000000000000    0   0.188834515000000
+  1   0.500000000000000    0   0.500000000000000    0   0.197916925000000
+   2 S
+  1   0.000000000000000    0   0.000000000000000    0   0.090601811000000
+  1   0.500000000000000    0   0.500000000000000    0   0.522646711000000
+   2 S
+  1   0.000000000000000    0   0.000000000000000    0   0.197916903000000
+  1   0.500000000000000    0   0.500000000000000    0   0.188834536000000
+   2 S
+  1   0.000000000000000    0   0.000000000000000    0   0.522646771000000
+  1   0.500000000000000    0   0.500000000000000    0   0.090601828000000
+   2 S
+  1   0.000000000000000    0   0.000000000000000    0   0.188834515000000
+  1   0.500000000000000    0   0.500000000000000    0   0.197916925000000
+   2 S
+  1   0.000000000000000    0   0.000000000000000    0   0.090601811000000
+  1   0.500000000000000    0   0.500000000000000    0   0.522646711000000
+   2 S
+  1   0.000000000000000    0   0.000000000000000    0   0.197916903000000
+  1   0.500000000000000    0   0.500000000000000    0   0.188834536000000
+   2 S
+  1   0.000000000000000    0   0.000000000000000    0   0.522646771000000
+  1   0.500000000000000    0   0.500000000000000    0   0.090601828000000
+   2 S
+  1   0.000000000000000    0   0.000000000000000    0   0.188834515000000
+  1   0.500000000000000    0   0.500000000000000    0   0.197916925000000
+   2 S
+  1   0.000000000000000    0   0.000000000000000    0   0.090601811000000
+  1   0.500000000000000    0   0.500000000000000    0   0.522646711000000
+   2 S
+  1   0.000000000000000    0   0.000000000000000    0   0.197916903000000
+  1   0.500000000000000    0   0.500000000000000    0   0.188834536000000
+out.dat
+  9
+    0    0
+    1    1
+   -1   -1
+    1   -1
+   -1    1
+    2    0
+   -2    0
+    0   -2
+    0    2
+in.dat
+   1   1   0
+   1  -1   0
+    -0.3232280      0.5802860
+     0.5291200      0.3232800
+    -0.5672200     -0.2850750
+NN
+NN
+NN
+    -0.3232280      0.5802860
+     0.5291200      0.3232800
+    -0.5672200     -0.2850750
+NN
+NN
+NN
+    -0.3232280      0.5802860
+     0.5291200      0.3232800
+    -0.5672200     -0.2850750
+NN
+NN
+NN
+    -0.3232280      0.5802860
+     0.5291200      0.3232800
+    -0.5672200     -0.2850750
+NN
+NN
+NN
+    -0.3232280      0.5802860
+     0.5291200      0.3232800
+    -0.5672200     -0.2850750
+NN
+NN
+NN
+    -0.3232280      0.5802860
+     0.5291200      0.3232800
+    -0.5672200     -0.2850750
+NN
+NN
+NN
+    -0.3232280      0.5802860
+     0.5291200      0.3232800
+    -0.5672200     -0.2850750
+NN
+NN
+NN
+     6237.10000000
+    2
+SQUA
+    1     1      1.0300000      1.0000000
+    2     0      1.0000000      1.0000000
+YN
+YN
+    2
+SQUA
+    1     1      1.0300000      1.0000000
+    2     0      1.0000000      1.0000000
+YN
+YN
+    2
+SQUA
+    1     1      1.0300000      1.0000000
+    2     0      1.0000000      1.0000000
+YN
+YN
+    2
+SQUA
+    1     1      1.0000000      1.0000000
+    2     0      1.0000000      1.0000000
+NN
+NN
+    2
+SQUA
+    1     1      1.0300000      1.0000000
+    2     0      1.0000000      1.0000000
+YN
+YN
+    2
+SQUA
+    1     1      1.0300000      1.0000000
+    2     0      1.0000000      1.0000000
+YN
+YN
+    2
+SQUA
+    1     1      1.0300000      1.0000000
+    2     0      1.0000000      1.0000000
+YN
+YN
+PARA   1
+     1
+  1000
+     9
+        0.00000001
+        0.00100000
+        0.05000000
+        0.00010000
+        0.90000000
+0.05   0.05   0.05   0.05   0.05   0.05   0.05   0.05   0.05   0.05   0.05   0.05        0.0500000      0.0500000      0.0500000      0.0500000      0.0500000      0.0500000
+     1.0500000      0.9500000
+     1.0500000      0.9500000
+     1.0500000      0.9500000
+     1.0500000      0.9500000
+     1.0500000      0.9500000
+     1.0500000      0.9500000
+     1.0500000      0.9500000
+     1.0500000      0.9500000
+     1.0500000      0.9500000
+     1.0500000      0.9500000
+     1.0500000      0.9500000
+     1.0500000      0.9500000
+     1.0500000      0.9500000
+     1.0500000      0.9500000
+     1.0500000      0.9500000
+     1.0500000      0.9500000
+     1.0500000      0.9500000
+     1.0500000      0.9500000
+
+</textarea>
 	</div>
 
 	<script type="text/javascript">
+	/**
+	 * Backend of QCBEDMS-PF FOR007.DAT file generator
+	 */
+
+
 	// Format versions
-	var prog = "qcbedms-pf", coord_fmt = "side_angle", dw_fmt = "various", f7_tpl = "cu_qcbedms-pf_tpl";
+	var prog = "qcbedms-pf", coord_fmt = "side-angle", abs_fmt = "3", dw_fmt = "various";
+	var f7_tpl = "cu_qcbedms-pf_tpl";
 
 	// Misc.
 	var title = "";
 	var kv, maskkv = false, uncekv, indz = [];
 	var dilation, maskdilation = false, uncedilation;
 	var meshx, meshy;
-	
+
 	// Fresnel propagators
 	var npr = 1;
 	var cell2d_a = [], cell2d_b = [], gammareal = [], deltaz = [], xshift = [], yshift = [];
 
-	// Atom types	
+	// Atom types
 	var iam_path, dsap, dsmax, ntype = 1, absorb_opt = "YES_ABSORPTION";
 	var label = [], zt = [];
-	var dw_uni = [], inela = [], inelb = [], inelc = [];
-	var maskdw_uni = [], maskinela = [], maskinelb = [], maskinelc = [];
-	var uncedw_uni = [], unceinela = [], unceinelb = [], unceinelc = [];
+	var inela = [], inelb = [], inelc = [], ineld = [], inele = [], inelf = [];
+	var maskinela = [], maskinelb = [], maskinelc = [], maskineld = [], maskinele = [], maskinelf = [];
+	var unceinela = [], unceinelb = [], unceinelc = [], unceineld = [], unceinele = [], unceinelf = [];
+	var dw_uni = [], maskdw_uni = [], uncedw_uni = [];
 	var dw_var = [], maskdw_var = [], uncedw_var = [];
 
 	// Regions
-	var nregions = 1, nslice = 1; 
+	var nregions = 1, nslice = 1;
 	var depth = [], concflag = [], fstype = [], binda = [], bindb = [], bindc = [];
 	var rnsl = [], nball = [], rtype = [], slpr = [];
 	var itype = [], occ = [];
-	var symopt = [], nrf = [ 1 ], sfh = [], sfk = [];
+	var symopt = [], nrf = [1], sfh = [], sfk = [];
 	var constvacconc = [], va = [], vb = [];
 	var ta1 = [], ta2 = [], tb1 = [], tb2 = [], tc1 = [], tc2 = [], td1 = [], td2 = [];
 	var xpsx = [], xpsy = [], sffac = [], absfac = [];
@@ -1220,25 +1530,24 @@ YN
 	var nump, numl, gradopt = 1, ay, bee, nothing, cee, dee, naught, cbx, cby, bs, tbx, iref, iref_opt;
 	var masktx = false, maskty = false, maskts = false, masktt = false;
 	var uncetx, uncety, uncets, uncett;
-	
+
 	// Refinement settings
-	var method, paraopt, loops, maxcycles, maxiters, minunce, maxtemp, mintemp, coolrate;
+	var method, paraopt, loops,maxcycles, maxiters, minunce, maxtemp, mintemp, coolrate;
 	var msp_opt1 = "fftsg", msp_opt2, msp_opt3, test_opt1 = [], test_opt2 = [], test_opt3 = [];
 	var mpi_mode = [], ntest, rtest, msp_timer, sgl_opt = [];
 	var msp_ratio = [], msp_meth = [], msp_dev = [], msp_splt = [];
 	var unce = [];
 	var tl = 0, hM = 0, rU = 0;
-</script>
 
-	<script type="text/javascript">
+
 	function ReplaceRefineSpan(p, n, f, r) {
 		var e = p.querySelector('[class=\"' + "refine" + n + '\"]');
 		e.innerHTML = document.getElementById('refine_tpl').innerHTML;
-		var s = e.querySelector('select'); 
+		var s = e.querySelector('select');
 		s.name = "mask" + n, s.options[0].value = f, s.options[1].value = r;
 		e.querySelector('[class="unce"]').name = "unce" + n;
 	}
-	
+
 	function Toggle_TOC() {
 		var s = document.getElementById("toc").style;
 		var t = document.getElementById("txt").style;
@@ -1248,12 +1557,12 @@ YN
 			s.display = "none", t.display = "";
 		}
 	}
-	
+
 	function Change_Divider() {
 		var d = document.getElementById("divider");
 		var l = document.getElementById("left_panel");
 		var r = document.getElementById("right_panel");
-		
+
 		l.style.width = d.value + "%";
 		r.style.width = (100 - d.value) + "%";
 	}
@@ -1304,10 +1613,10 @@ YN
 	function VarToForm_misc() {
 		ReplaceRefineSpan(document, "kv", 0, 1);
 		ReplaceRefineSpan(document, "dilation", 0, 1);
-		
+
 		var f = document.querySelector('[name="iam_path"]');
 		if (prog == "qcbedms")
-			f.disabled = true, iam_path = "N/A"; 
+			f.disabled = true, iam_path = "N/A";
 	}
 
 	function VarToForm_pr() {
@@ -1324,10 +1633,6 @@ YN
 			div.removeAttribute("id");
 			div.querySelector('b').innerText = "Propagator #" + (i + 1) + ":";
 			list.appendChild(div);
-			if (i != npr - 1) {
-				var hr = document.createElement("hr");
-				list.appendChild(hr);
-			}
 		}
 	}
 
@@ -1341,19 +1646,37 @@ YN
 			div.removeAttribute("id");
 			div.querySelector('b').innerText = "Type #" + (i + 1) + ":";
 
-			ReplaceRefineSpan(div, "dw_uni\[\]", 0, 1);
-			ReplaceRefineSpan(div, "inela\[\]", 0, 1);
-			ReplaceRefineSpan(div, "inelb\[\]", 0, 1);
-			
 			if (dw_fmt == "unique")
 				div.querySelector('[class="dw_uni_ctn"]').style.display = "";
 			else
 				div.querySelector('[class="dw_uni_ctn"]').style.display = "none";
-			
+
 			if (absorb_opt == "YES_ABSORPTION")
 				div.querySelector('[class="absorption"]').style.display = "";
 			else
 				div.querySelector('[class="absorption"]').style.display = "none";
+
+			ReplaceRefineSpan(div, "dw_uni\[\]", 0, 1);
+			ReplaceRefineSpan(div, "inela\[\]", 0, 1);
+			ReplaceRefineSpan(div, "inelb\[\]", 0, 1);
+			ReplaceRefineSpan(div, "ineld\[\]", 0, 1);
+			ReplaceRefineSpan(div, "inele\[\]", 0, 1);
+			ReplaceRefineSpan(div, "inelf\[\]", 0, 1);
+
+			if (Number(abs_fmt) < 6)
+				div.querySelector('[class="abs_f"]').style.display = "none", maskinelf[i] = 0;
+
+			if (Number(abs_fmt) < 5)
+				div.querySelector('[class="abs_e"]').style.display = "none", maskinele[i] = 0;
+
+			if (Number(abs_fmt) < 4)
+				div.querySelector('[class="abs_d"]').style.display = "none", maskineld[i] = 0;
+
+			if (Number(abs_fmt) < 3)
+				div.querySelector('[class="abs_c"]').style.display = "none", maskinelc[i] = 0;
+
+			if (abs_fmt != "3")
+				div.querySelector('[name="maskinelc[]"]').options[0].disabled = true;
 
 			list.appendChild(div);
 		}
@@ -1371,12 +1694,12 @@ YN
 
 		for (var i = 0; i < nregions; i++) {
 			var regi = document.getElementById('region_tpl').cloneNode(true);
-			regi.querySelector('b').innerText = "Region " + (i + 1) +":";
+			regi.querySelector('b').innerText = "Region " + (i + 1) + ":";
 			regi.id = "region" + i;
 			var regi_toc = document.createElement('a');
 			regi_toc.href = "#region" + i, regi_toc.className = "a1";
-			regi_toc.text = "4." + (i + 1) + ". Region " + (i + 1) 
-				+ " (" + Math.round(depth[i]) + " \u212b)";
+			regi_toc.text = "4." + (i + 1) + ". Region " + (i + 1) +
+			" (" + Math.round(depth[i]) + " \u212b)";
 			toc_region.appendChild(regi_toc);
 
 			var maskdepthi = regi.querySelector('[name="maskdepth[]"]');
@@ -1404,16 +1727,16 @@ YN
 				pgj.id = jid;
 				var pgj_toc = document.createElement('a');
 				pgj_toc.href = "#" + jid, pgj_toc.className = "a2";
-				pgj_toc.text = "Slice T. #" + (is + 1) 
-					+ ": \u0394z = " + deltaz[is] + " \u212b (Propagator #" + slpr[is] + ")";
+				pgj_toc.text = "Slice T. #" + (is + 1) +
+				": \u0394z = " + deltaz[is] + " \u212b (Propagator #" + slpr[is] + ")";
 				toc_region.appendChild(pgj_toc);
-				
+
 				for (var k = 0; k < npr; k++) {
 					var o = document.createElement("option");
 					o.value = k + 1, o.text = (k + 1);
 					pgj.querySelector('[name="slpr[]"]').add(o);
 				}
-				
+
 				if (prog == "qcbedms-pf")
 					pgj.querySelector('[name="slpr[]"]').disabled = false;
 				else
@@ -1430,10 +1753,10 @@ YN
 					kball.querySelector('b').innerText = "Atom " + (k + 1) + ":";
 					var kball_toc = document.createElement('a');
 					kball_toc.href = "#" + kid, kball_toc.className = "a3";
-					kball_toc.text = label[itype[kb] - 1] 
-						+ " at ( " + xpsx[kb] + " , " + xpsy[kb] + " ), " + Number(occ[kb]) * 100 + "%";
+					kball_toc.text = label[itype[kb] - 1] +
+							" @ ( " + xpsx[kb] + " , " + xpsy[kb] + " ). Occ. = " + occ[kb];
 					toc_region.appendChild(kball_toc);
-					
+
 					for (var l = 0; l < ntype; l++) {
 						var o = document.createElement("option");
 						o.value = l + 1, o.text = (l + 1) + ". " + label[l];
@@ -1444,11 +1767,6 @@ YN
 					ReplaceRefineSpan(kball, "xpsy\[\]", 0, 1);
 
 					ball_list.appendChild(kball);
-					
-					if (k != nball[is] - 1) {
-						var hr = document.createElement("hr");
-						ball_list.appendChild(hr);
-					}
 					kb++;
 				}
 
@@ -1467,15 +1785,15 @@ YN
 				ve.style.display = "none";
 			}
 
-			if (coord_fmt == "side_angle")
-				regi.querySelector('[class="3_points"]').style.display = "none";
+			if (coord_fmt == "side-angle")
+				regi.querySelector('[class="3-points"]').style.display = "none";
 			else
-				regi.querySelector('[class="3_points"]').style.display = "";
+				regi.querySelector('[class="3-points"]').style.display = "";
 
-			if (coord_fmt == "4_points")
-				regi.querySelector('[class="4_points"]').style.display = "";
+			if (coord_fmt == "4-points")
+				regi.querySelector('[class="4-points"]').style.display = "";
 			else
-				regi.querySelector('[class="4_points"]').style.display = "none";
+				regi.querySelector('[class="4-points"]').style.display = "none";
 
 			ReplaceRefineSpan(regi, "ta1\[\]", "N", "Y");
 			ReplaceRefineSpan(regi, "ta2\[\]", "N", "Y");
@@ -1485,19 +1803,18 @@ YN
 			ReplaceRefineSpan(regi, "tc2\[\]", "N", "Y");
 			ReplaceRefineSpan(regi, "td1\[\]", "N", "Y");
 			ReplaceRefineSpan(regi, "td2\[\]", "N", "Y");
-			
-			if (dw_fmt == "various") 
+
+			if (dw_fmt == "various")
 				regi.querySelector('[class="dw_var_ctn"]').style.display = "";
 			else
 				regi.querySelector('[class="dw_var_ctn"]').style.display = "none";
 
 			for (var j = 0; j < ntype; j++) {
 				var idw = document.getElementById('dw_var_tpl').cloneNode(true);
-				idw.querySelector('[class="atom_type"]').innerText 
-					= "Type #" + (j + 1) + ". " + label[j] + " =";
-				
+				idw.querySelector('[class="atom_type"]').innerText = "Type #" + (j + 1) + ". " + label[j] + " =";
+
 				ReplaceRefineSpan(idw, "dw_var\[\]", 0, 1);
-				
+
 				regi.querySelector('[class="dw_var_list"]').appendChild(idw);
 			}
 
@@ -1527,8 +1844,8 @@ YN
 	function VarToForm_pattern() {
 		var inpf = document.getElementById("in_file");
 		var inpd = document.getElementById("in_dim");
-		
-		if(prog == "qcbedms")
+
+		if (prog == "qcbedms")
 			in_opt = "0", document.querySelector('[name="in_opt"]').disabled = true;
 		else
 			document.querySelector('[name="in_opt"]').disabled = false;
@@ -1553,10 +1870,10 @@ YN
 			list.appendChild(div);
 		}
 
-		if (coord_fmt == "side_angle")
-			document.getElementById("side_angle").style.display = "";
+		if (coord_fmt == "side-angle")
+			document.getElementById("side-angle").style.display = "";
 		else
-			document.getElementById("side_angle").style.display = "none";
+			document.getElementById("side-angle").style.display = "none";
 
 		ReplaceRefineSpan(document, "tx", "N", "Y");
 		ReplaceRefineSpan(document, "ty", "N", "Y");
@@ -1576,7 +1893,7 @@ YN
 		var list = document.getElementById('pll_list');
 		while (list.firstChild)
 			list.removeChild(list.firstChild);
-		
+
 		var toc_ref = document.getElementById('toc_refinement_list');
 		while (toc_ref.firstChild)
 			toc_ref.removeChild(toc_ref.firstChild);
@@ -1584,10 +1901,10 @@ YN
 		div.innerHTML = rU + " parameters being refined";
 		toc_ref.appendChild(div);
 
-		if (prog == "qcbedms-pf") 
+		if (prog == "qcbedms-pf")
 			hM = 0, FormParallel(msp_opt1, msp_opt2, list);
 	}
-	
+
 	function FormParallel(opt1, opt2, c) {
 		if (opt1 == "test") {
 			for (var j = 0; j < opt2; j++) {
@@ -1604,7 +1921,7 @@ YN
 			}
 		}
 	}
-	
+
 	function FormParallelChild(opt, b, h, m) {
 		var div = document.getElementById('pll_tpl').cloneNode(true);
 		div.removeAttribute("id");
@@ -1615,7 +1932,7 @@ YN
 		var ratio = div.querySelector('[name="msp_ratio[]"]');
 		if (typeof opt === "undefined")
 			opt = "";
-		
+
 		if (prog == "qcbedms")
 			opt = msp_opt1 = "fftsg", msp_opt2 = 1, msp_opt3 = 1, opt1.disabled = true;
 
@@ -1626,19 +1943,19 @@ YN
 			opt1.name = "msp_meth[]", opt2.name = "msp_dev[]", opt3.name = "msp_splt[]";
 			opt1.remove(6), opt1.remove(5), opt1.remove(4), opt1.remove(0);
 			ratio.parentNode.style.display = "";
-			if (opt == "fftsg") 
+			if (opt == "fftsg")
 				msp_dev[h] = 1;
 			if (opt == "fftsg" || opt == "fftw")
 				msp_splt[h] = 1;
 		} else {
-			if (opt == "fftsg") 
+			if (opt == "fftsg")
 				msp_opt2 = 1;
 			if (opt == "fftsg" || opt == "fftw")
 				msp_opt3 = 1;
 			ratio.parentNode.remove();
 		}
-		
-		if (opt == "hybrid" | opt == "mpi" | opt == "test")  {
+
+		if (opt == "hybrid" | opt == "mpi" | opt == "test") {
 			opt2.className = "n", opt2.type = "number", opt2.setAttribute("onchange", "Refresh()");
 			if (opt == "test") {
 				div.querySelector('[class="ntest"]').style.display = "";
@@ -1652,7 +1969,7 @@ YN
 			div.querySelector('[name="sgl_opt[]"]').remove();
 		} else {
 			div.querySelector('[class="splt"]').style.display = "";
-			if (opt == "fftsg") 
+			if (opt == "fftsg")
 				opt2.disabled = true;
 			if (opt == "fftsg" || opt == "fftw")
 				opt3.disabled = true, div.querySelector('[class="fftw"]').style.display = "";
@@ -1661,7 +1978,7 @@ YN
 			if (opt == "cufft")
 				div.querySelector('[class="cuda"]').style.display = "";
 		}
-		
+
 		if (opt != "test")
 			div.querySelector('[class="timer"]').remove();
 		if (opt == "hybrid") {
@@ -1670,13 +1987,13 @@ YN
 			div.querySelector('[name="mpi_mode[]"]').remove();
 		if (opt == "clfft" && m != "hybrid")
 			div.querySelector('[name="sgl_opt[]"]').style.display = "";
-		
+
 		return div;
 	}
-	
+
 	function ResetVariables(f) {
 		for (var i of document.getElementById("form").querySelectorAll('input, select')) {
-			if (i.name.endsWith("[]")) 
+			if (i.name.endsWith("[]"))
 				window[i.name.replace(/[[\]]/g, '')] = [];
 			else
 				window[i.name] = "";
@@ -1693,15 +2010,15 @@ YN
 		VarToForm_refinement();
 
 		var f = document.getElementById("form");
-		
+
 		for (var i of f.querySelectorAll('input, select')) {
 			var j0 = 0, iname = i.name;
 			if (iname.endsWith("[]"))
 				iname = iname.replace("[]]", "\[\]")
-			for (var j of f.querySelectorAll('[name=\"' + iname + '\"]'))
-				j.value = eval(i.name.replace("]", j0++ + "]"));
+				for (var j of f.querySelectorAll('[name=\"' + iname + '\"]'))
+					j.value = eval(i.name.replace("]", j0++ + "]"));
 		}
-		
+
 		for (var c of f.querySelectorAll('span[class^="refine"]')) {
 			var s = c.querySelector("select");
 			if (s.selectedIndex < 0)
@@ -1711,79 +2028,84 @@ YN
 				d.value = 0.1;
 			ChangeRefine(s);
 		}
-		
+
 		for (var c of f.querySelectorAll('[name="maskinelc[]"]'))
 			Change_AbsorbC(c);
-		
+
 		var v = document.getElementById("fmt");
 		for (var i of v.querySelectorAll('input, select'))
 			i.value = eval(i.name);
 	}
 
 	function FormToVar() {
-		for (var i of document.getElementById("fmt").querySelectorAll('select')) 
+		for (var i of document.getElementById("fmt").querySelectorAll('select'))
 			window[i.name] = i.value;
-		
+
 		var f = document.getElementById("form");
 		ResetVariables();
-		
+
 		for (var i of f.querySelectorAll('input, select')) {
-			if (i.name.endsWith("[]")) 
+			if (i.name.endsWith("[]"))
 				window[i.name.replace(/[[\]]/g, '')].push(i.value);
-			else 
+			else
 				window[i.name] = i.value;
 		}
-		
+
 		rnsl = rnsl.map(Number);
-		nslice = rnsl.reduce(function(a, b) { return a + b; }, 0);
+		nslice = rnsl.reduce(function(a, b) {
+			return a + b;
+		}, 0);
 	}
 
 	function TextToForm() {
 		ResetVariables();
-		
+
 		var t = document.getElementById("txt").value.split("\n");
 		t = t.filter(function(item) {
 			return !(item.startsWith("#"))
 		});
-		
+
 		var ti = [];
 		tl = 0;
 		title = t[tl++];
 		[kv, maskkv, ...indz] = t[tl++].match(/\S+/g) || [];
 		[npr, meshx, meshy] = t[tl++].match(/\S+/g) || [];
 		for (var i = 0; i < npr; i++)
-			[cell2d_a[i], cell2d_b[i], gammareal[i], deltaz[i], xshift[i], yshift[i]] 
-					= t[tl++].match(/\S+/g) || [];
+			[cell2d_a[i], cell2d_b[i], gammareal[i], deltaz[i], xshift[i], yshift[i]] = t[tl++].match(/\S+/g) || [];
 		if (prog == "qcbedms-pf")
 			iam_path = t[tl++];
-		[ ntype ] = t[tl++].match(/\S+/g) || [];
+		[ntype] = t[tl++].match(/\S+/g) || [];
 		for (var i = 0; i < ntype; i++) {
 			if (prog == "qcbedms-pf")
 				[label[i], zt[i]] = t[tl++].match(/\S+/g) || [];
 			else
-				label[i] = t[tl++].match(/\S+/g) || [], zt[i] = t[tl++].match(/\S+/g) || [];
+				[label[i]] = t[tl++].match(/\S+/g) || [], [zt[i]] = t[tl++].match(/\S+/g) || [];
 		}
-		[ dsap ] = t[tl++].match(/\S+/g) || [];
-		[ dsmax ] = t[tl++].match(/\S+/g) || [];
-		[ nregions ] = t[tl++].match(/\S+/g) || []; 
+		[dsap] = t[tl++].match(/\S+/g) || [];
+		[dsmax] = t[tl++].match(/\S+/g) || [];
+		[nregions] = t[tl++].match(/\S+/g) || [];
 		ti = t[tl++].match(/\S+/g) || [];
-		for (var i = 0; i < nregions; i++)		
+		for (var i = 0; i < nregions; i++)
 			depth[i] = ti[i * 2], maskdepth[i] = ti[i * 2 + 1];
 		rnsl = (t[tl++].match(/\S+/g) || []).map(Number);
-		nslice = rnsl.reduce(function(a, b) { return a + b; }, 0);
+		nslice = rnsl.reduce(function(a, b) {
+			return a + b;
+		}, 0);
 		for (var i = 0; i < nregions; i++) {
-			[ concflag[i] ] = t[tl++].match(/\S+/g) || [];
+			[concflag[i]] = t[tl++].match(/\S+/g) || [];
 			if (concflag[i] == 0)
-				[ constvacconc[i], maskconstvacconc[i] ] = t[tl++].match(/\S+/g) || [];
+				[constvacconc[i], maskconstvacconc[i]] = t[tl++].match(/\S+/g) || [];
 			else
-				[ va[i], maskva[i], vb[i], maskvb[i] ] = t[tl++].match(/\S+/g) || [];
+				[va[i], maskva[i], vb[i], maskvb[i]] = t[tl++].match(/\S+/g) || [];
 		}
 		[dilation, maskdilation] = t[tl++].match(/\S+/g) || [];
-		[ absorb_opt ] = t[tl++].match(/\S+/g) || [];
+		[absorb_opt] = t[tl++].match(/\S+/g) || [];
 		if (absorb_opt.startsWith("YE")) {
-			for (var i = 0; i < ntype; i++)
-		 		[inela[i], maskinela[i], inelb[i], maskinelb[i], inelc[i], maskinelc[i]] 
-		 				= t[tl++].match(/\S+/g) || [];
+			for (var i = 0; i < ntype; i++) {
+				[inela[i], maskinela[i], inelb[i], maskinelb[i], inelc[i], maskinelc[i],
+					ineld[i], maskineld[i], inele[i], maskinele[i], inelf[i], maskinelf[i]
+				] = t[tl++].match(/\S+/g) || [];
+			}
 		}
 		if (dw_fmt == "unique") {
 			ti = t[tl++].match(/\S+/g) || [];
@@ -1804,58 +2126,60 @@ YN
 					for (var j = 0; j < ntype; j++)
 						maskdw_var[i * ntype + j] = ti[j];
 				}
-			} 
-			
-	 		[fstype[i], binda[i], bindb[i], bindc[i]] = t[tl++].match(/\S+/g) || [];
+			}
+
+			[fstype[i], binda[i], bindb[i], bindc[i]] = t[tl++].match(/\S+/g) || [];
 		}
-		for (var i = 0; i < nslice; i++) {
+		
+		
+		for (var i = 0, k = 0; i < nslice; i++) {
 			if (prog == "qcbedms-pf")
-	 			[nball[i], rtype[i], slpr[i]] = t[tl++].match(/\S+/g) || [];
+				[nball[i], rtype[i], slpr[i]] = t[tl++].match(/\S+/g) || [];
 			else
-	 			[nball[i], rtype[i]] = t[tl++].match(/\S+/g) || [], slpr[i] = i + 1;
-			
-	 		for (var j = 0, k = i * nball[i]; j < nball[i]; j++, k++)
-	 	 		[itype[k], xpsx[k], maskxpsx[k], xpsy[k], maskxpsy[k], occ[k]] = t[tl++].match(/\S+/g) || [];
+				[nball[i], rtype[i]] = t[tl++].match(/\S+/g) || [], slpr[i] = i + 1;
+
+			for (var j = 0; j < nball[i]; j++, k++)
+				[itype[k], xpsx[k], maskxpsx[k], xpsy[k], maskxpsy[k], occ[k]] = t[tl++].match(/\S+/g) || [];
 		}
 		bmname = t[tl++];
-		[ mbout ] = t[tl++].match(/\S+/g) || [];
-		for (var i = 0; i < mbout; i++) 
+		[mbout] = t[tl++].match(/\S+/g) || [];
+		for (var i = 0; i < mbout; i++)
 			[hin[i], kin[i]] = t[tl++].match(/\S+/g) || [];
 		ti = t[tl++].match(/\S+/g) || [];
 		if (ti.length == 1)
 			expint = ti[0], in_opt = "0";
-		else 
+		else
 			[in_opt, nump, numl, gradopt] = ti;
 		[ay, bee, nothing] = t[tl++].match(/\S+/g) || [];
 		[cee, dee, naught] = t[tl++].match(/\S+/g) || [];
-		if(coord_fmt == "side_angle") {
-	 		[cbx, cby] = t[tl++].match(/\S+/g) || [];
-	 		[bs, tbx] = t[tl++].match(/\S+/g) || [];
-	 		[masktx, maskty] = t[tl++].match(/\S+/g)[0].split("") || [];
-	 		[maskts, masktt] = t[tl++].match(/\S+/g)[0].split("") || [];
+		if (coord_fmt == "side-angle") {
+			[cbx, cby] = t[tl++].match(/\S+/g) || [];
+			[bs, tbx] = t[tl++].match(/\S+/g) || [];
+			[masktx, maskty] = t[tl++].match(/\S+/g)[0].split("") || [];
+			[maskts, masktt] = t[tl++].match(/\S+/g)[0].split("") || [];
 		} else
 			for (var i = 0; i < nregions; i++) {
-		 		[ta1, ta2] = t[tl++].match(/\S+/g) || [];
-		 		[tb1, tb2] = t[tl++].match(/\S+/g) || [];
-		 		[tc1, tc2] = t[tl++].match(/\S+/g) || [];
-		 		if (coord_fmt == "4_points")
-		 			[td1, td2] = t[tl++].match(/\S+/g) || [];
-		 		[maskta1[i], maskta2[i]] = t[tl++].match(/\S+/g)[0].split("") || [];
-		 		[masktb1[i], masktb2[i]] = t[tl++].match(/\S+/g)[0].split("") || [];
-		 		[masktc1[i], masktc2[i]] = t[tl++].match(/\S+/g)[0].split("") || [];
-		 		if (coord_fmt == "4_points")
-		 			[masktd1[i], masktd2[i]] = t[tl++].match(/\S+/g)[0].split("") || [];
+				[ta1[i], ta2[i]] = t[tl++].match(/\S+/g) || [];
+				[tb1[i], tb2[i]] = t[tl++].match(/\S+/g) || [];
+				[tc1[i], tc2[i]] = t[tl++].match(/\S+/g) || [];
+				if (coord_fmt == "4-points")
+					[td1[i], td2[i]] = t[tl++].match(/\S+/g) || [];
+				[maskta1[i], maskta2[i]] = t[tl++].match(/\S+/g)[0].split("") || [];
+				[masktb1[i], masktb2[i]] = t[tl++].match(/\S+/g)[0].split("") || [];
+				[masktc1[i], masktc2[i]] = t[tl++].match(/\S+/g)[0].split("") || [];
+				if (coord_fmt == "4-points")
+					[masktd1[i], masktd2[i]] = t[tl++].match(/\S+/g)[0].split("") || [];
 			}
 		[iref] = t[tl++].match(/\S+/g) || [], iref_opt = Number(iref);
 		if (iref_opt > 0)
 			iref_opt = 1;
 		for (var i = 0, k1 = 0, k2 = 0; i < nregions; i++) {
-	 		[nrf[i]] = t[tl++].match(/\S+/g) || [];
-	 		[symopt[i]] = t[tl++].match(/\S+/g) || [];
-			for (var j = 0; j < nrf[i]; j++, k1++) 
-		 		[sfh[k1], sfk[k1], sffac[k1], absfac[k1]] = t[tl++].match(/\S+/g) || [];
-			for (var j = 0; j < nrf[i]; j++, k2++) 
-		 		[masksffac[k2], maskabsfac[k2]] = t[tl++].match(/\S+/g)[0].split("") || [];
+			[nrf[i]] = t[tl++].match(/\S+/g) || [];
+			[symopt[i]] = t[tl++].match(/\S+/g) || [];
+			for (var j = 0; j < nrf[i]; j++, k1++)
+				[sfh[k1], sfk[k1], sffac[k1], absfac[k1]] = t[tl++].match(/\S+/g) || [];
+			for (var j = 0; j < nrf[i]; j++, k2++)
+				[masksffac[k2], maskabsfac[k2]] = t[tl++].match(/\S+/g)[0].split("") || [];
 		}
 		[method, paraopt] = t[tl++].match(/\S+/g) || [];
 		[loops] = t[tl++].match(/\S+/g) || [];
@@ -1869,88 +2193,99 @@ YN
 		[coolrate] = t[tl++].match(/\S+/g) || [];
 		unce = t[tl++].match(/\S+/g) || [];
 		SortUnce("v=u");
-		
-		test_opt1 = [], test_opt2 = [], test_opt3 = []; 
+
+		test_opt1 = [], test_opt2 = [], test_opt3 = [];
 		msp_ratio = [], msp_meth = [], msp_dev = [], msp_splt = [];
 		sgl_opt = [], mpi_mode = [];
-		
+
 		hM = 0;
 		if (prog == "qcbedms-pf")
 			ReadTXTParallel(t, 0);
-// 		[] = t[tl++].match(/\S+/g) || [];
-		
+		// [] = t[tl++].match(/\S+/g) || [];
+
 		VarToForm();
-	};
-	
-	function ReadTXTParallel(t, h) {
-		[ test_opt1[h], test_opt2[h], test_opt3[h] ] = t[tl++].match(/\S+/g) || [];
-		msp_opt1 = test_opt1[h].toLowerCase();
-		msp_opt2 = Math.abs(test_opt2[h]);
-		msp_opt3 = Math.abs(test_opt3[h]);
-		if (msp_opt1 == "test") {
-			var ntest = msp_opt2, rtest = msp_opt3;
-			if (test_opt3[0] < 0)
-				msp_timer = "true";
-			else
-				msp_timer = "false";
-			
-			for (var i = 0; i < ntest; i++) 
-				ReadTXTParallel(t, i);
-			msp_opt1 = "test", msp_opt2 = ntest, msp_opt3 = rtest;
-		} else if (msp_opt1 == "hybrid" || msp_opt1 == "mpi") {
-			for (var i = 0; i < msp_opt2; i++) 
-				[ msp_ratio[hM], msp_meth[hM], msp_dev[hM], msp_splt[hM++] ] 
-					= t[tl++].match(/\S+/g) || [], msp_meth[i].toLowerCase();
-			if (test_opt2[h] < 0)
-				mpi_mode[h] = "pernode";
-			else
-				mpi_mode[h] = "default";
-		} else {
-			if (msp_opt3 < 0)
-				msp_opt3 = -msp_opt3, sgl_opt[h] = "single";
-			else
-				sgl_opt[h] = "double";
+
+		function ReadTXTParallel(t, h) {
+			[test_opt1[h], test_opt2[h], test_opt3[h]] = t[tl++].match(/\S+/g) || [];
+			msp_opt1 = test_opt1[h].toLowerCase();
+			msp_opt2 = Math.abs(test_opt2[h]);
+			msp_opt3 = Math.abs(test_opt3[h]);
+			if (msp_opt1 == "test") {
+				var ntest = msp_opt2, rtest = msp_opt3;
+				if (test_opt3[0] < 0)
+					msp_timer = "true";
+				else
+					msp_timer = "false";
+		
+				for (var i = 0; i < ntest; i++)
+					ReadTXTParallel(t, i);
+				msp_opt1 = "test", msp_opt2 = ntest, msp_opt3 = rtest;
+			} else if (msp_opt1 == "hybrid" || msp_opt1 == "mpi") {
+				for (var i = 0; i < msp_opt2; i++) {
+					[msp_ratio[hM], msp_meth[hM], msp_dev[hM], msp_splt[hM++]] = t[tl++].match(/\S+/g) || [];
+					msp_meth[i].toLowerCase();
+				}
+				if (test_opt2[h] < 0)
+					mpi_mode[h] = "pernode";
+				else
+					mpi_mode[h] = "default";
+			} else {
+				if (msp_opt3 < 0)
+					msp_opt3 = -msp_opt3, sgl_opt[h] = "single";
+				else
+					sgl_opt[h] = "double";
+			}
 		}
 	}
-	
+
 	function FormToText() {
 		FormToVar();
 		var t = [], ti = [];
 		tl = 0;
 		t[tl++] = title;
-		t[tl++] = [ kv, maskkv, indz[0], indz[1], indz[2] ];
+		t[tl++] = [kv, maskkv, indz[0], indz[1], indz[2]];
 		t[tl++] = [npr, meshx, meshy];
 		for (var i = 0; i < npr; i++)
 			t[tl++] = [cell2d_a[i], cell2d_b[i], gammareal[i], deltaz[i], xshift[i], yshift[i]];
 		if (prog == "qcbedms-pf")
 			t[tl++] = iam_path;
-		t[tl++] = [ ntype ];
+		t[tl++] = [ntype];
 		for (var i = 0; i < ntype; i++) {
 			if (prog == "qcbedms-pf")
 				t[tl++] = [label[i], zt[i]];
 			else
 				t[tl++] = label[i], t[tl++] = zt[i];
 		}
-		t[tl++] = [ dsap ];
-		t[tl++] = [ dsmax ];
-		t[tl++] = [ nregions ]; 
+		t[tl++] = [dsap];
+		t[tl++] = [dsmax];
+		t[tl++] = [nregions];
 		t[tl] = [];
-		for (var i = 0; i < nregions; i++)		
+		for (var i = 0; i < nregions; i++)
 			t[tl][i] = depth[i] + " " + maskdepth[i];
 		tl++;
 		t[tl++] = rnsl;
 		for (var i = 0; i < nregions; i++) {
-			t[tl++] = [ concflag[i] ];
+			t[tl++] = [concflag[i]];
 			if (concflag[i] == 0)
-				t[tl++] = [ constvacconc[i], maskconstvacconc[i] ];
+				t[tl++] = [constvacconc[i], maskconstvacconc[i]];
 			else
-				t[tl++] = [ va[i], maskva[i], vb[i], maskvb[i] ];
+				t[tl++] = [va[i], maskva[i], vb[i], maskvb[i]];
 		}
 		t[tl++] = [dilation, maskdilation];
-		t[tl++] = [ absorb_opt ];
+		t[tl++] = [absorb_opt];
 		if (absorb_opt.startsWith("YE")) {
-			for (var i = 0; i < ntype; i++)
-				t[tl++] = [inela[i], maskinela[i], inelb[i], maskinelb[i], inelc[i], maskinelc[i]];
+			for (var i = 0; i < ntype; i++) {
+				t[tl] = inela[i] + " " + maskinela[i] + "   " + inelb[i] + " " + maskinelb[i] + "   ";
+				if (abs_fmt > 2)
+					t[tl] += inelc[i] + " " + maskinelc[i] + "   ";
+				if (abs_fmt > 3)
+					t[tl] += ineld[i] + " " + maskineld[i] + "   ";
+				if (abs_fmt > 4)
+					t[tl] += inele[i] + " " + maskinele[i] + "   ";
+				if (abs_fmt > 5)
+					t[tl] += inelf[i] + " " + maskinelf[i] + "   ";
+				tl++;
+			}
 		}
 		if (dw_fmt == "unique") {
 			t[tl] = "";
@@ -1972,28 +2307,28 @@ YN
 					t[tl] += "  " + maskdw_var[i * ntype + j];
 				tl++;
 			}
-			
-	 		t[tl++] = [fstype[i], binda[i], bindb[i], bindc[i]];
+
+			t[tl++] = [fstype[i], binda[i], bindb[i], bindc[i]];
 		}
-		for (var i = 0; i < nslice; i++) {
+		for (var i = 0, k = 0; i < nslice; i++) {
 			if (prog == "qcbedms-pf")
 				t[tl++] = [nball[i], rtype[i], slpr[i]];
 			else
 				t[tl++] = [nball[i], rtype[i]];
-	 		for (var j = 0, k = i * nball[i]; j < nball[i]; j++, k++)
-	 			t[tl++] = [itype[k], xpsx[k], maskxpsx[k], xpsy[k], maskxpsy[k], occ[k]];
+			for (var j = 0; j < nball[i]; j++, k++)
+				t[tl++] = [itype[k], xpsx[k], maskxpsx[k], xpsy[k], maskxpsy[k], occ[k]];
 		}
 		t[tl++] = bmname;
-		t[tl++] = [ mbout ];
-		for (var i = 0; i < mbout; i++) 
+		t[tl++] = [mbout];
+		for (var i = 0; i < mbout; i++)
 			t[tl++] = [hin[i], kin[i]];
 		if (in_opt == "0")
 			t[tl++] = expint;
-		else 
+		else
 			t[tl++] = [in_opt, nump, numl, gradopt];
 		t[tl++] = [ay, bee, nothing];
 		t[tl++] = [cee, dee, naught];
-		if (coord_fmt == "side_angle") {
+		if (coord_fmt == "side-angle") {
 			t[tl++] = [cbx, cby];
 			t[tl++] = [bs, tbx];
 			t[tl++] = masktx + maskty;
@@ -2003,14 +2338,14 @@ YN
 				t[tl++] = [ta1[i], ta2[i]];
 				t[tl++] = [tb1[i], tb2[i]];
 				t[tl++] = [tc1[i], tc2[i]];
-				if (coord_fmt == "4_points")
+				if (coord_fmt == "4-points")
 					t[tl++] = [td1[i], td2[i]];
 			}
 			for (var i = 0; i < nregions; i++) {
 				t[tl++] = maskta1[i] + maskta2[i];
 				t[tl++] = masktb1[i] + masktb2[i];
 				t[tl++] = masktc1[i] + masktc2[i];
-				if (coord_fmt == "4_points")
+				if (coord_fmt == "4-points")
 					t[tl++] = masktd1[i] + masktd2[i];
 			}
 		}
@@ -2018,9 +2353,9 @@ YN
 		for (var i = 0, k1 = 0, k2 = 0; i < nregions; i++) {
 			t[tl++] = [nrf[i]];
 			t[tl++] = [symopt[i]];
-			for (var j = 0; j < nrf[i]; j++, k1++) 
+			for (var j = 0; j < nrf[i]; j++, k1++)
 				t[tl++] = [sfh[k1], sfk[k1], sffac[k1], absfac[k1]];
-			for (var j = 0; j < nrf[i]; j++, k2++) 
+			for (var j = 0; j < nrf[i]; j++, k2++)
 				t[tl++] = masksffac[k2] + maskabsfac[k2];
 		}
 		t[tl++] = [method, paraopt];
@@ -2029,20 +2364,20 @@ YN
 		t[tl++] = [maxcycles];
 		t[tl++] = [minunce];
 		if (prog == "qcbedms")
-			t[tl++] = [ 0.0000001 ];
+			t[tl++] = [0.0000001];
 		t[tl++] = [maxtemp];
 		t[tl++] = [mintemp];
 		t[tl++] = [coolrate];
 		SortUnce("u=v");
 		t[tl++] = unce;
-		
+
 		hM = 0;
-		if (prog == "qcbedms-pf") 
+		if (prog == "qcbedms-pf")
 			WriteTXTParallel(msp_opt1, msp_opt2, msp_opt3, t, 0);
-		else 
+		else
 			for (var i = 0; i < unce.length; i++)
-				t[tl++] = (1 - Number(unce[i])) + "  " + (1 + Number(unce[i]));
-		
+				t[tl++] = (1 + Number(unce[i])) + "  " + (1 - Number(unce[i]));
+
 		var TXT = "";
 		for (var i = 0; i < t.length; i++) {
 			if (Array.isArray(t[i])) {
@@ -2052,43 +2387,44 @@ YN
 			} else
 				TXT += t[i] + "\n";
 		}
-		
-		document.getElementById("txt").value = TXT;
-	}
 
-	function WriteTXTParallel(opt1, opt2, opt3, t, h) {
-		if (opt1 == "test") {
-			t[tl] = opt1 + "  " + opt2 + "  "; 
-			if (msp_timer == "true")
-				t[tl] += -opt3;
-			else
-				t[tl] += opt3;
-			tl++;
-			
-			for (var i = 0; i < msp_opt2; i++) 
-				WriteTXTParallel(test_opt1[i], Number(test_opt2[i]), Number(test_opt3[i]), t, i);
-		} else if (opt1 == "hybrid" || opt1 == "mpi") {
-			t[tl] = opt1 + "  ";
-			if (mpi_mode[h] == "pernode")
-				t[tl] += -opt2;
-			else
-				t[tl] += opt2;
-			t[tl++] += "  " + opt3;
-			for (var i = hM; i < hM + opt2; i++) 
-				t[tl++] = [ msp_ratio[i], msp_meth[i], msp_dev[i], msp_splt[i] ];
-			hM += Number(opt2);
-		} else {
-			
-			t[tl] = opt1 + "  " + opt2 + "  ";
-			if (sgl_opt[h] == "single")
-				t[tl++] += -opt3;
-			else
-				t[tl++] += opt3;
+		document.getElementById("txt").value = TXT;
+
+		function WriteTXTParallel(opt1, opt2, opt3, t, h) {
+			if (opt1 == "test") {
+				t[tl] = opt1 + "  " + opt2 + "  ";
+				if (msp_timer == "true")
+					t[tl] += -opt3;
+				else
+					t[tl] += opt3;
+				tl++;
+
+				for (var i = 0; i < msp_opt2; i++)
+					WriteTXTParallel(test_opt1[i], Number(test_opt2[i]), Number(test_opt3[i]), t, i);
+			} else if (opt1 == "hybrid" || opt1 == "mpi") {
+				t[tl] = opt1 + "  ";
+				if (mpi_mode[h] == "pernode")
+					t[tl] += -opt2;
+				else
+					t[tl] += opt2;
+				t[tl++] += "  " + opt3;
+				for (var i = hM; i < hM + opt2; i++)
+					t[tl++] = [msp_ratio[i], msp_meth[i], msp_dev[i], msp_splt[i]];
+				hM += Number(opt2);
+			} else {
+
+				t[tl] = opt1 + "  " + opt2 + "  ";
+				if (sgl_opt[h] == "single")
+					t[tl++] += -opt3;
+				else
+					t[tl++] += opt3;
+			}
 		}
 	}
-	
+
 	function SortUnce(d) {
 		rU = 0;
+
 		function UnceCheck(d, v, y) {
 			if (eval("mask" + v) == y) {
 				if (d == "v=u")
@@ -2097,7 +2433,7 @@ YN
 					unce[rU++] = eval("unce" + v);
 			}
 		}
-		
+
 		if (d == "u=v")
 			unce = [];
 		UnceCheck(d, "depth[0]", 2);
@@ -2108,19 +2444,22 @@ YN
 			if (concflag[i] > 0) {
 				UnceCheck(d, "va[" + i + "]", 1);
 				UnceCheck(d, "vb[" + i + "]", 1);
-			} else 
+			} else
 				UnceCheck(d, "constvacconc[" + i + "]", 1);
 		}
 		UnceCheck(d, "dilation", 1);
-		if (absorb_opt == "YES_ABSORPTION") 
+		if (absorb_opt == "YES_ABSORPTION")
 			for (var i = 0; i < ntype; i++) {
 				UnceCheck(d, "inela[" + i + "]", 1);
 				UnceCheck(d, "inelb[" + i + "]", 1);
 				UnceCheck(d, "inelc[" + i + "]", 1);
+				UnceCheck(d, "ineld[" + i + "]", 1);
+				UnceCheck(d, "inele[" + i + "]", 1);
+				UnceCheck(d, "inelf[" + i + "]", 1);
 			}
 		if (dw_fmt == "various")
 			for (var i = 0; i < nregions * ntype; i++)
-					UnceCheck(d, "dw_var[" + i + "]", 1);
+				UnceCheck(d, "dw_var[" + i + "]", 1);
 		else
 			for (var i = 0; i < ntype; i++)
 				UnceCheck(d, "dw_uni[" + i + "]", 1);
@@ -2129,7 +2468,7 @@ YN
 				UnceCheck(d, "xpsx[" + b + "]", 1);
 				UnceCheck(d, "xpsy[" + b + "]", 1);
 			}
-		if (coord_fmt == "side_angle") {
+		if (coord_fmt == "side-angle") {
 			UnceCheck(d, "tx", "Y");
 			UnceCheck(d, "ty", "Y");
 			UnceCheck(d, "ts", "Y");
@@ -2142,12 +2481,12 @@ YN
 				UnceCheck(d, "tb2[" + i + "]", "Y");
 				UnceCheck(d, "tc1[" + i + "]", "Y");
 				UnceCheck(d, "tc2[" + i + "]", "Y");
-				if (coord_fmt == "4_points") {
+				if (coord_fmt == "4-points") {
 					UnceCheck(d, "td1[" + i + "]", "Y");
 					UnceCheck(d, "td2[" + i + "]", "Y");
 				}
 			}
-		for (var i = 0, f = 0; i < nregions; i++) 
+		for (var i = 0, f = 0; i < nregions; i++)
 			for (var j = 0; j < nrf[i]; j++, f++) {
 				UnceCheck(d, "sffac[" + f + "]", "Y");
 				UnceCheck(d, "absfac[" + f + "]", "Y");
@@ -2158,48 +2497,50 @@ YN
 		FormToVar();
 		VarToForm();
 	}
-	
+
 	function LoadF7Tpl() {
 		f7_tpl = document.querySelector("[name='f7_tpl']").value
-		
+
 		if (f7_tpl.search("qcbedms") >= 0)
 			prog = "qcbedms";
 		if (f7_tpl.search("qcbedms-pf") >= 0)
 			prog = "qcbedms-pf";
-		
+
+		if (f7_tpl.search("side-angle") >= 0)
+			coord_fmt = "side-angle";
+		if (f7_tpl.search("3-points") >= 0)
+			coord_fmt = "3-points";
+		if (f7_tpl.search("4-points") >= 0)
+			coord_fmt = "4-points";
+
+		var ii = f7_tpl.search("-abs");
+		abs_fmt = f7_tpl.substring(ii - 1, ii);
+
 		if (f7_tpl.search("dw-var") >= 0)
 			dw_fmt = "various";
 		else
 			dw_fmt = "unique";
-		
-		if (f7_tpl.search("side-angle") >= 0)
-			coord_fmt = "side_angle";
-		if (f7_tpl.search("3-points") >= 0)
-			coord_fmt = "3_points";
-		if (f7_tpl.search("4-points") >= 0)
-			coord_fmt = "4_points";
-		
+
 		var TXT = document.getElementById("txt");
-		
+
 		if (f7_tpl == "empty")
 			TXT.value = "";
 		else
 			TXT.value = document.getElementById(f7_tpl).value;
-		
+
 		TextToForm();
 	}
-	
+
 	function EmptyForm() {
 		ResetVariables();
 		nregions = nslice = npr = ntype = mbout = 1, rnsl = [1], nball = [1];
 		VarToForm();
 	}
-	
+
 	VarToForm();
 	LoadF7Tpl();
 	Change_Divider();
-	Toggle_TOC();
-</script>
-
+	</script>
 </body>
+
 </html>
